@@ -1,0 +1,49 @@
+@page "/translate"
+@using MyAiTools.AiFun.Code
+
+<h2>简单翻译工具</h2>
+
+<div class="translator-container">
+    <div class="input-group">
+        <label for="sourceText">输入文字:</label>
+        <textarea id="sourceText" @bind="sourceText"></textarea>
+    </div>
+
+    <div class="input-group">
+        <label for="targetLanguage">目标语言:</label>
+        <select id="targetLanguage" @bind="targetLanguage">
+            <option value="english">英语</option>
+            <option value="chinese">中文</option>
+            <!-- 添加其他语言选项 -->
+        </select>
+    </div>
+
+    <div class="buttons">
+        <button @onclick="TranslateText">翻译</button>
+        <button @onclick="ClearText">清除</button>
+    </div>
+
+    <div class="output-group">
+        <label for="translatedText">翻译后的文字:</label>
+        <textarea id="translatedText" readonly @bind="translatedText"></textarea>
+    </div>
+</div>
+
+
+
+@code {
+    private string sourceText;
+    private string targetLanguage = "chinese"; // 默认目标语言为英语
+    private string translatedText;
+    private TranslateService translateService = new TranslateService();
+    private async Task TranslateText()
+    {
+        translatedText =await translateService.TranslateText(sourceText, targetLanguage);
+        // translatedText = "翻译后的文字";
+    }
+    private void ClearText()
+    {
+        sourceText = string.Empty;
+        translatedText = string.Empty;
+    }
+}
