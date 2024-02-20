@@ -4,28 +4,25 @@ namespace MyAiTools.AiFun.Code;
 
 public class TranslateService
 {
-    private readonly string _openAiKey ;
-    private IKernelBuilder _builder ;
-    private Kernel _kernel;
-    private string _pluginDirectoryPath ;
-    private KernelPlugin PluginFunctions ;
+    private readonly Kernel kernel;
+    private readonly KernelPlugin pluginFunctions ;
     public TranslateService()
     {
-        _openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-        _builder = Kernel.CreateBuilder();
-        _builder.AddOpenAIChatCompletion("gpt-3.5-turbo", _openAiKey);
-        _kernel = _builder.Build();
-        _pluginDirectoryPath = Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "TranslatePlugin");
-        PluginFunctions = _kernel.ImportPluginFromPromptDirectory(_pluginDirectoryPath);
+        var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        var builder = Kernel.CreateBuilder();
+        builder.AddOpenAIChatCompletion("gpt-3.5-turbo", openAiKey);
+        kernel = builder.Build();
+        var pluginDirectoryPath = Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "TranslatePlugin");
+        pluginFunctions = kernel.ImportPluginFromPromptDirectory(pluginDirectoryPath);
     }
     
     public async Task<string> TranslateText(string text, string target)
     {
         var arguments = new KernelArguments() { ["input"] = text, ["target"] = target };
-        object result = null;
+        object? result;
         try
         {
-            result = await _kernel.InvokeAsync(PluginFunctions["Translate"], arguments);
+            result = await kernel.InvokeAsync(pluginFunctions["Translate"], arguments);
         }
         catch (Exception e)
         {

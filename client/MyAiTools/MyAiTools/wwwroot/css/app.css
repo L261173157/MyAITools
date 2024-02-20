@@ -68,30 +68,91 @@ h1:focus {
 .status-bar-safe-area {
     display: none;
 }
+
+/* 容器样式 */
 .translator-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    max-width: 700px; /* 增加宽度 */
+    margin: auto;
+    padding: 25px; /* 增加内边距 */
+    border: 1px solid #e0e0e0; /* 更轻的边框颜色 */
+    border-radius: 8px;
+    background-color: #fafafa; /* 更淡的背景颜色 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.chat-container {
+    width: 100%; /* 使容器宽度自动适应父元素宽度 */
+    /*max-width: 700px; !* 设置最大宽度限制 *!*/
+    margin: 20px auto; /* 上下边距为20px，左右自动（保持居中） */
+    padding: 20px;
+    height: 500px; /* 固定高度 */
+    border: 1px solid #cfd8dc; /* 边框颜色 */
+    border-radius: 10px;
+    background-color: #fafafa; /* 背景颜色 */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 阴影效果 */
+    overflow-y: auto; /* 超出内容可滚动 */
 }
 
+/* 聊天历史对话框样式 */
+.chat-container {
+    height: 400px; /* 增加高度 */
+}
+
+/* 输入和输出组样式 */
 .input-group, .output-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 25px; /* 增加间距 */
 }
 
-textarea {
-    resize: vertical;
-    height: 100px;
+/* 文本区域和下拉选择框样式 */
+.input-group textarea, .output-group textarea, .input-group select {
+    width: 100%;
+    padding: 12px; /* 增加填充 */
+    border: 1px solid #e0e0e0; /* 轻的边框颜色 */
+    border-radius: 4px;
+    background-color: #ffffff; /* 纯白背景色 */
+    margin-bottom: 15px; /* 统一间距 */
 }
 
-.buttons {
-    display: flex;
-    gap: 1rem;
-}
-
-button {
+/* 按钮样式 */
+.buttons button {
+    padding: 10px 20px;
+    margin: 0 12px; /* 增加按钮间距 */
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 16px;
+    background-color: #4CAF50; /* 清新的按钮颜色 */
+    color: white;
 }
+
+.buttons button:hover {
+    background-color: #45a049; /* 深一点的按钮悬停颜色 */
+}
+
+/* 消息样式 */
+.message {
+    padding: 10px 14px; /* 调整内边距 */
+    border-radius: 20px; /* 更圆润的边角 */
+    margin: 10px 0; /* 增加间距 */
+    font-size: 16px; /* 增大字体 */
+}
+
+/* 用户消息样式 */
+.user-message {
+    background-color: #007BFF; /* 蓝色背景 */
+    color: #ffffff; /* 白色文字 */
+    margin-left: auto;
+    border-bottom-right-radius: 0;
+}
+
+/* 系统消息样式 */
+.system-message {
+    background-color: #eeeeee; /* 更轻的灰色背景 */
+    color: #333333; /* 深色文字 */
+    margin-right: auto;
+    border-bottom-left-radius: 0;
+}
+
+
+
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
         display: flex;

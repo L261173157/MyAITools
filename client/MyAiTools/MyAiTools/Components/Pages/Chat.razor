@@ -1,0 +1,51 @@
+@page "/chat"
+@using MyAiTools.AiFun.Code
+<h3>ChatGPT模拟聊天</h3>
+
+<div class="chat-container">
+    @foreach (var message in messages)
+    {
+        <div class="message @(message.IsUser ? "user-message" : "system-message")">
+            @message.Content
+        </div>
+    }
+</div>
+
+<div class="input-group">
+    <input @bind="userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..." />
+    <button class="btn btn-primary" @onclick="SendMessage">发送</button>
+</div>
+
+@code {
+    private readonly List<MessageModel> messages = new();
+    private string? userInput;
+    private readonly ChatService chatService=new();
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(userInput))
+        {
+            // 添加用户消息
+            messages.Add(new MessageModel { Content = userInput, IsUser = true });
+            // 这里可以添加代码来处理用户的输入，比如发送到后端API并获取回复
+            // 模拟系统回复
+            var reply =await chatService.Chat(userInput);
+            messages.Add(new MessageModel { Content = reply , IsUser = false });
+            userInput = string.Empty; // 清空输入框
+        }
+    }
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+           await SendMessage();
+        }
+    }
+
+    private class MessageModel
+    {
+        public string? Content { get; init; }
+        public bool IsUser { get; init; }
+    }
+}
