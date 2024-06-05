@@ -4,6 +4,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.TextToImage;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using MyAiTools.AiFun.Services;
 
 public class ChatService
 {
@@ -17,11 +18,11 @@ public class ChatService
 
     public ChatService()
     {
+        var handler = new OpenAIHttpClientHandler();
         openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         builder = Kernel.CreateBuilder();
-        builder.AddOpenAIChatCompletion("gpt-3.5-turbo", openAiKey);
+        builder.AddOpenAIChatCompletion(modelId:"gemini-pro", apiKey:openAiKey,httpClient: new HttpClient(handler));
         kernel = builder.Build();
-        // dallE = kernel.GetRequiredService<ITextToImageService>();
         chatGPT = kernel.GetRequiredService<IChatCompletionService>();
         systemMessage = "You're chatting with a user. ";
         chat = new ChatHistory(systemMessage);
