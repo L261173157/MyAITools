@@ -21,10 +21,10 @@ public class ChatService
         var handler = new OpenAIHttpClientHandler();
         openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         builder = Kernel.CreateBuilder();
-        builder.AddOpenAIChatCompletion(modelId:"gemini-pro", apiKey:openAiKey,httpClient: new HttpClient(handler));
+        builder.AddOpenAIChatCompletion(modelId:"gemini-1.5-pro", apiKey:openAiKey,httpClient: new HttpClient(handler));
         kernel = builder.Build();
         chatGPT = kernel.GetRequiredService<IChatCompletionService>();
-        systemMessage = "You're chatting with a user. ";
+        systemMessage = "你是一个有用的AI助手";
         chat = new ChatHistory(systemMessage);
     }
     

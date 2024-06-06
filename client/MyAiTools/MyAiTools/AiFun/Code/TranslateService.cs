@@ -12,7 +12,7 @@ public class TranslateService
         var handler = new OpenAIHttpClientHandler();
         var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         var builder = Kernel.CreateBuilder();
-        builder.AddOpenAIChatCompletion(modelId:"gemini-pro", apiKey:openAiKey,httpClient: new HttpClient(handler));
+        builder.AddOpenAIChatCompletion(modelId:"gemini-1.5-pro", apiKey:openAiKey,httpClient: new HttpClient(handler));
         kernel = builder.Build();
         var pluginDirectoryPath = Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "TranslatePlugin");
         pluginFunctions = kernel.ImportPluginFromPromptDirectory(pluginDirectoryPath);

@@ -1,12 +1,19 @@
 @page "/chat"
 @using MyAiTools.AiFun.Code
-<h3>ChatGPT模拟聊天</h3>
+<h3>聊天工具</h3>
 
 <div class="chat-container">
     @foreach (var message in messages)
     {
         <div class="message @(message.IsUser ? "user-message" : "system-message")">
-            @message.Content
+       
+            @* 处理消息中的换行符 *@
+            @foreach (var line in message.Content.Split('\n'))
+            {
+                @line
+
+                <br />
+            }
         </div>
     }
 </div>
