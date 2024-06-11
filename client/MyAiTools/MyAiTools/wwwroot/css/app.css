@@ -71,7 +71,7 @@ h1:focus {
 
 /* 容器样式 */
 .translator-container {
-    max-width: 700px; /* 增加宽度 */
+    width: 100%; /* 使容器宽度自动适应父元素宽度 */
     margin: auto;
     padding: 25px; /* 增加内边距 */
     border: 1px solid #e0e0e0; /* 更轻的边框颜色 */
@@ -94,8 +94,58 @@ h1:focus {
 
 /* 聊天历史对话框样式 */
 .chat-container {
-    height: 400px; /* 增加高度 */
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    height: 70vh; /* 占据视口高度的 80%，可以根据需要调整 */
+    overflow-y: auto; /* 当内容超出容器高度时显示滚动条 */
 }
+
+.message {
+    padding: 10px 14px; /* 调整内边距 */
+    border-radius: 20px; /* 更圆润的边角 */
+    margin: 10px 0; /* 增加间距 */
+    font-size: 16px; /* 增大字体 */
+    max-width: 70%;
+    word-wrap: break-word;
+    display: inline-block;
+}
+
+/* 用户消息样式 */
+.user-message {
+    background-color: #007BFF; /* 蓝色背景 */
+    color: #ffffff; /* 白色文字 */
+    margin-left: auto;
+    border-bottom-right-radius: 0;
+    text-align: left; /* 内容左对齐 */
+}
+
+/* 系统消息样式 */
+.system-message {
+    background-color: #eeeeee; /* 更轻的灰色背景 */
+    color: #333333; /* 深色文字 */
+    margin-right: auto;
+    border-bottom-left-radius: 0;
+    text-align: left; /* 内容左对齐 */
+}
+
+.input-group {
+    display: flex;
+    margin-top: 10px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+    .input-group input {
+        flex: 1;
+    }
+
+    .input-group button {
+        margin-left: 10px;
+    }
+
 
 /* 输入和输出组样式 */
 .input-group, .output-group {
@@ -127,29 +177,7 @@ h1:focus {
     background-color: #45a049; /* 深一点的按钮悬停颜色 */
 }
 
-/* 消息样式 */
-.message {
-    padding: 10px 14px; /* 调整内边距 */
-    border-radius: 20px; /* 更圆润的边角 */
-    margin: 10px 0; /* 增加间距 */
-    font-size: 16px; /* 增大字体 */
-}
 
-/* 用户消息样式 */
-.user-message {
-    background-color: #007BFF; /* 蓝色背景 */
-    color: #ffffff; /* 白色文字 */
-    margin-left: auto;
-    border-bottom-right-radius: 0;
-}
-
-/* 系统消息样式 */
-.system-message {
-    background-color: #eeeeee; /* 更轻的灰色背景 */
-    color: #333333; /* 深色文字 */
-    margin-right: auto;
-    border-bottom-left-radius: 0;
-}
 
 
 

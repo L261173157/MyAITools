@@ -1,5 +1,6 @@
 @page "/translate"
 @using MyAiTools.AiFun.Code
+@inject TranslateService translateService
 
 <h2>简单翻译工具</h2>
 
@@ -35,7 +36,6 @@
     private string sourceText;
     private string targetLanguage = "chinese"; // 默认目标语言为中文
     private string translatedText;
-    private TranslateService translateService = new TranslateService();
     private async Task TranslateText()
     {
         translatedText =await translateService.TranslateText(sourceText, targetLanguage);

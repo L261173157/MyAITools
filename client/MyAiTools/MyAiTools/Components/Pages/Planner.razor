@@ -1,17 +1,18 @@
-@page "/chat"
+﻿@page "/planner"
 @using MyAiTools.AiFun.Code
-@inject ChatService chatService
-@inject NavigationManager Navigation
-
-<h3>聊天工具</h3>
+@inject PlannerService planner
+<h3>计划工具</h3>
 
 <div class="chat-container">
     @foreach (var message in messages)
     {
         <div class="message @(message.IsUser ? "user-message" : "system-message")">
+
+            @* 处理消息中的换行符 *@
             @foreach (var line in message.Content.Split('\n'))
             {
-                @((MarkupString)FormatMessage(line))
+                @line
+
                 <br />
             }
         </div>
@@ -19,7 +20,7 @@
 </div>
 
 <div class="input-group">
-    <input @bind="userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..." />
+    <input @bind="userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的计划..." />
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
 </div>
 
@@ -37,7 +38,7 @@
             var tempUserInput = userInput;
             userInput = string.Empty; // 清空输入框
                                       // 模拟系统回复
-            var reply = await chatService.Chat(tempUserInput);
+            var reply = await planner.Plan(tempUserInput);
             messages.Add(new MessageModel { Content = reply, IsUser = false });
         }
     }
@@ -48,16 +49,6 @@
         {
             await SendMessage();
         }
-    }
-
-    private string FormatMessage(string message)
-    {
-        var urlPattern = @"(http|https)://[^\s]+";
-        return System.Text.RegularExpressions.Regex.Replace(message, urlPattern, match =>
-        {
-            var url = match.Value;
-            return $"<iframe src=\"{url}\" width=\"512\" height=\"512\"></iframe>";
-        });
     }
 
     private class MessageModel

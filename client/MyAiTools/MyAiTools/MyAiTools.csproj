@@ -58,14 +58,88 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.40" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.40" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.40" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="Microsoft.SemanticKernel" Version="1.4.0" />
+        <PackageReference Include="Microsoft.SemanticKernel" Version="1.14.1" />
+        <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.14.1-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.14.1-alpha" />
     </ItemGroup>
 
     <ItemGroup>
+      <None Update="AiFun\plugins\MyPlugin\TranslatePlugin\Translate\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\FunPlugin\Excuses\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\FunPlugin\Joke\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\FunPlugin\Limerick\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\SummarizePlugin\MakeAbstractReadable\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\SummarizePlugin\Notegen\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\SummarizePlugin\Summarize\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\SummarizePlugin\Topics\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\AcronymGenerator\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\AcronymReverse\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\Acronym\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\Brainstorm\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\EmailGen\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\EmailTo\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\EnglishImprover\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\NovelChapterWithNotes\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\NovelChapter\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\NovelOutline\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\Rewrite\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\ShortPoem\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\StoryGen\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\TellMeMore\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\Translate\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="AiFun\plugins\OfficePlugin\WriterPlugin\TwoSentenceSummary\skprompt.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="AiFun\plugins\TranslatePlugin\Translate\skprompt.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
