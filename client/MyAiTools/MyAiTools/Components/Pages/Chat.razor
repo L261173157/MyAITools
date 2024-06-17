@@ -1,5 +1,7 @@
-@page "/chat"
+@page "/chatHistory"
+@using Microsoft.SemanticKernel
 @using MyAiTools.AiFun.Code
+@using Microsoft.SemanticKernel.ChatCompletion
 @inject ChatService chatService
 @inject NavigationManager Navigation
 
@@ -12,34 +14,68 @@
             @foreach (var line in message.Content.Split('\n'))
             {
                 @((MarkupString)FormatMessage(line))
-                <br />
+                <br/>
             }
         </div>
     }
 </div>
 
 <div class="input-group">
-    <input @bind="userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..." />
+    <input @bind="userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."/>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
+    <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
 </div>
 
 @code {
     private readonly List<MessageModel> messages = new();
+    private readonly List<ChatMessageContent> chatMessages = new();
     private string? userInput;
+
+    protected override void OnInitialized()
+    {
+        addMessage();
+    }
+
+    private void addMessage()
+    {
+        chatMessages.Clear();
+        messages.Clear();
+        foreach (var chatMessageContent in chatService.chatHistory)
+        {
+            chatMessages.Add(chatMessageContent);
+        }
+
+        foreach (var chatMessageContent in chatMessages)
+        {
+            if (chatMessageContent.Role.Label == "assistant")
+            {
+                messages.Add(new MessageModel { Content = chatMessageContent.ToString(), IsUser = false });
+            }
+
+            if (chatMessageContent.Role.Label == "user")
+            {
+                messages.Add(new MessageModel { Content = chatMessageContent.ToString(), IsUser = true });
+            }
+        }
+    }
 
     private async Task SendMessage()
     {
         if (!string.IsNullOrWhiteSpace(userInput))
         {
-            // 添加用户消息
-            messages.Add(new MessageModel { Content = userInput, IsUser = true });
             // 这里可以添加代码来处理用户的输入，比如发送到后端API并获取回复
             var tempUserInput = userInput;
             userInput = string.Empty; // 清空输入框
-                                      // 模拟系统回复
+            // 模拟系统回复
             var reply = await chatService.Chat(tempUserInput);
-            messages.Add(new MessageModel { Content = reply, IsUser = false });
+            addMessage();
         }
+    }
+
+    private void ClearMessage()
+    {
+        chatService.ClearChatHistory();
+        addMessage();
     }
 
     private async Task HandleKeyUp(KeyboardEventArgs e)
@@ -65,4 +101,5 @@
         public string? Content { get; init; }
         public bool IsUser { get; init; }
     }
+
 }

@@ -1,2 +1,0 @@
-Please translate the following text   to  {{$target}}, ensuring the use of formal register and be as concise as possible.As long as the original text is translated, do not add extra content.
-Input: {{$input}}

@@ -10,6 +10,7 @@ using MyAiTools.AiFun.plugins.MyPlugin;
 public class ChatService
 {
     private readonly Kernel _kernel;
+
     // private ITextToImageService dallE;
     private IChatCompletionService chatGPT;
 #pragma warning disable SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
@@ -18,23 +19,22 @@ public class ChatService
 #pragma warning restore SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning restore SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
     private string systemMessage;
-    private ChatHistory chat;
+    public ChatHistory chatHistory;
 
     public ChatService(IKernelCreat kernel)
     {
         _kernel = kernel.KernelBuild();
-        _kernel.ImportPluginFromType<MathPlugin>();
         chatGPT = _kernel.GetRequiredService<IChatCompletionService>();
 #pragma warning disable SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning disable SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
         dallE = _kernel.GetRequiredService<ITextToImageService>();
 #pragma warning restore SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning restore SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-        systemMessage = "你是一个有用的AI助手";
-        chat = new ChatHistory(systemMessage);
+        systemMessage = "你是一个有用的AI助手，尽量用中文回答";
+        chatHistory = new ChatHistory(systemMessage);
     }
-    
-public async Task<string> Chat(string? ask)
+
+    public async Task<string> Chat(string? ask)
     {
         try
         {
@@ -48,18 +48,24 @@ public async Task<string> Chat(string? ask)
 #pragma warning restore SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
                 return imageurl;
             }
-            
-            chat.AddUserMessage(ask);
-            var assistantReply = await chatGPT.GetChatMessageContentAsync(chat, new OpenAIPromptExecutionSettings(){ ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions });
-            chat.AddAssistantMessage(assistantReply.Content);
+
+            if (ask != null) chatHistory.AddUserMessage(ask);
+            var assistantReply = await chatGPT.GetChatMessageContentAsync(chatHistory,
+                new OpenAIPromptExecutionSettings() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions });
+            chatHistory.AddAssistantMessage(assistantReply.Content);
             return assistantReply.Content;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred: {ex.Message}");
             Console.WriteLine(ex.StackTrace);
-            return "对不起,程序报错"+ex.Message;
+            return "对不起,程序报错" + ex.Message;
         }
-        
+    }
+
+//chatHistory的清空方法
+    public void ClearChatHistory()
+    {
+        chatHistory.Clear();
     }
 }

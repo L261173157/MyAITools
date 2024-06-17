@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 //using MyAiTools.AiFun.plugins.MyPlugin;
 using Microsoft.SemanticKernel.Plugins.Core;
@@ -20,19 +21,21 @@ namespace MyAiTools.AiFun.Code
         private readonly HandlebarsPlanner planner;
 #pragma warning restore SKEXP0060 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
-        public PlannerService(IKernelCreat kernel)
+        private readonly ILogger<PlannerService> _logger;
+
+        public PlannerService(IKernelCreat kernel ,ILogger<PlannerService> logger)
         {
             _kernel = kernel.KernelBuild();
-            //var pluginDirectoryPath = Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "OfficePlugin");
-            //_kernel.ImportPluginFromPromptDirectory(Path.Combine(pluginDirectoryPath, "FunPlugin"));
-
+            var pluginDirectoryPath = Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "OfficePlugin");
+            _kernel.ImportPluginFromPromptDirectory(Path.Combine(pluginDirectoryPath, "SummarizePlugin"));
+            _kernel.ImportPluginFromPromptDirectory(Path.Combine(pluginDirectoryPath, "WriterPlugin"));
 
 #pragma warning disable SKEXP0050 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             _kernel.ImportPluginFromType<MathPlugin>();
-            _kernel.ImportPluginFromType<TimePlugin>();
-            _kernel.ImportPluginFromType<FileIOPlugin>();
-            _kernel.ImportPluginFromType<ConversationSummaryPlugin>();
-            _kernel.ImportPluginFromType<TextPlugin>();
+            //_kernel.ImportPluginFromType<TimePlugin>();
+            //_kernel.ImportPluginFromType<FileIOPlugin>();
+            //_kernel.ImportPluginFromType<ConversationSummaryPlugin>();
+            //_kernel.ImportPluginFromType<TextPlugin>();
 #pragma warning restore SKEXP0050 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 
             ////增加功能
@@ -40,6 +43,9 @@ namespace MyAiTools.AiFun.Code
 #pragma warning disable SKEXP0060 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             planner = new HandlebarsPlanner(new HandlebarsPlannerOptions() { AllowLoops = true });
 #pragma warning restore SKEXP0060 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+
+            //添加日志
+            _logger = logger;
         }
 
         public async Task<string> Plan(string? target)
@@ -49,10 +55,15 @@ namespace MyAiTools.AiFun.Code
 #pragma warning disable SKEXP0060 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
                 var plan = await planner.CreatePlanAsync(_kernel, target);
 #pragma warning restore SKEXP0060 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+                //增加到日志
+                _logger.LogInformation("计划:" + '\n' + plan.ToString());
+                
 
 #pragma warning disable SKEXP0060 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-                var result = (await plan.InvokeAsync(_kernel)).Trim();
+                var result = (await plan.InvokeAsync(_kernel,new KernelArguments())).Trim();
 #pragma warning restore SKEXP0060 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+                //增加到日志
+                _logger.LogInformation("执行:" + '\n' + result.ToString());
 
                 return "计划:" + '\n' + plan.ToString() + '\n' + "执行:" + '\n' + result.ToString();
                 //return "计划:" + '\n' + plan.ToString() + '\n';
