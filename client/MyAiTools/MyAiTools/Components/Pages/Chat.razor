@@ -1,4 +1,7 @@
 @page "/chatHistory"
+@using System.Text
+@using System.Text.Json
+@using CommunityToolkit.Maui.Storage
 @using Microsoft.SemanticKernel
 @using MyAiTools.AiFun.Code
 @using Microsoft.SemanticKernel.ChatCompletion
@@ -24,6 +27,7 @@
     <input @bind="userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."/>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
     <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
+    <button class="btn btn-primary" @onclick="SaveConversation">保存</button>
 </div>
 
 @code {
@@ -67,7 +71,7 @@
             var tempUserInput = userInput;
             userInput = string.Empty; // 清空输入框
             // 模拟系统回复
-            var reply = await chatService.Chat(tempUserInput);
+            await chatService.Chat(tempUserInput);
             addMessage();
         }
     }
@@ -94,6 +98,19 @@
             var url = match.Value;
             return $"<iframe src=\"{url}\" width=\"512\" height=\"512\"></iframe>";
         });
+    }
+
+    private async Task SaveConversation()
+    {
+        var options = new JsonSerializerOptions
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            WriteIndented = true // 美化输出，使其更具可读性（可选）
+        };
+        var json = JsonSerializer.Serialize(messages, options);
+        using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
+        var fileName = $"ChatHistory_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        var fileSaverResult = await FileSaver.SaveAsync(fileName, stream);
     }
 
     private class MessageModel
