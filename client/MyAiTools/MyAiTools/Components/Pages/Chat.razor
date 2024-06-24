@@ -1,4 +1,4 @@
-@page "/chatHistory"
+@page "/chat"
 @using System.Text
 @using System.Text.Json
 @using CommunityToolkit.Maui.Storage
@@ -28,12 +28,18 @@
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
     <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
     <button class="btn btn-primary" @onclick="SaveConversation">保存</button>
+    <button class="btn btn-primary" @onclick="LoadMemory">记忆</button>
+</div>
+
+<div class="message-tip">
+    @messageTip
 </div>
 
 @code {
     private readonly List<MessageModel> messages = new();
     private readonly List<ChatMessageContent> chatMessages = new();
     private string? userInput;
+    private string messageTip;
 
     protected override void OnInitialized()
     {
@@ -44,7 +50,7 @@
     {
         chatMessages.Clear();
         messages.Clear();
-        foreach (var chatMessageContent in chatService.chatHistory)
+        foreach (var chatMessageContent in chatService.ChatHistory)
         {
             chatMessages.Add(chatMessageContent);
         }
@@ -71,7 +77,8 @@
             var tempUserInput = userInput;
             userInput = string.Empty; // 清空输入框
             // 模拟系统回复
-            await chatService.Chat(tempUserInput);
+            var response = await chatService.Chat(tempUserInput);
+            SetMessageTip(response);
             addMessage();
         }
     }
@@ -111,12 +118,33 @@
         using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
         var fileName = $"ChatHistory_{DateTime.Now:yyyyMMdd_HHmmss}.json";
         var fileSaverResult = await FileSaver.SaveAsync(fileName, stream);
+        if (fileSaverResult.IsSuccessful)
+        {
+            SetMessageTip("保存成功");
+        }
+        else
+        {
+            SetMessageTip("保存失败");
+        }
     }
+
+    private async Task LoadMemory()
+    {
+        var response = await chatService.LoadMemory();
+        SetMessageTip(response);
+    }
+
+    private void SetMessageTip(string tip)
+    {
+        messageTip = tip;
+    }
+
 
     private class MessageModel
     {
         public string? Content { get; init; }
         public bool IsUser { get; init; }
     }
+
 
 }

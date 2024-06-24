@@ -28,7 +28,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IKernelCreat, KernelCreat>();
         builder.Services.AddSingleton<IGetBaseUrl, GetBaseUrlZZZ>();
         builder.Services.AddSingleton<ChatService>();
-        builder.Services.AddTransient<TranslateService>();
+        builder.Services.AddTransient<PluginService>();
         builder.Services.AddTransient<PlannerService>();
 
 #if DEBUG

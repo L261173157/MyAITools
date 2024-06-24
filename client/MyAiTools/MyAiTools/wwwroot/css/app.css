@@ -161,6 +161,15 @@ h1:focus {
     background-color: #ffffff; /* 纯白背景色 */
     margin-bottom: 15px; /* 统一间距 */
 }
+/* 消息提示样式 */
+.message-tip {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    color: #495057;
+}
 
 /* 按钮样式 */
 .buttons button {

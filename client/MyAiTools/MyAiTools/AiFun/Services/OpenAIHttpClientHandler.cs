@@ -40,6 +40,17 @@ public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
             };
             request.RequestUri = uriBuilder.Uri;
         }
+        //拦截地址文本嵌入服务地址
+        else if (request.RequestUri.LocalPath == "/v1/embeddings")
+        {
+            UriBuilder uriBuilder = new UriBuilder(request.RequestUri)
+            {
+                Scheme = _Scheme,
+                Host = _Host,
+                Path = "/v1/embeddings"
+            };
+            request.RequestUri = uriBuilder.Uri;
+        }
         else
         {
             throw new Exception("未知的请求地址");

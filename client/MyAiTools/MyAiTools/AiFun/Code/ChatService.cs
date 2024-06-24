@@ -1,3 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using Newtonsoft.Json;
+
 namespace MyAiTools.AiFun.Code;
 
 using Microsoft.SemanticKernel;
@@ -5,66 +9,157 @@ using Microsoft.SemanticKernel.TextToImage;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using MyAiTools.AiFun.Services;
-using MyAiTools.AiFun.plugins.MyPlugin;
+using Microsoft.SemanticKernel.Plugins.Core;
+using Microsoft.SemanticKernel.Memory;
+using System;
 
 #pragma warning disable SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning disable SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+#pragma warning disable SKEXP0050 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 public class ChatService
 {
-    private readonly Kernel _kernel;
+    private readonly IChatCompletionService _chatGpt;
+    private readonly ITextToImageService _dallE;
+    private readonly OpenAIPromptExecutionSettings _openAiPromptExecutionSettings;
+    private readonly ISemanticTextMemory _memory;
+    private const string MemoryCollectionName = "Knowledge";
 
-    // private ITextToImageService dallE;
-    private IChatCompletionService chatGPT;
-
-    private ITextToImageService dallE;
-
-    private string systemMessage;
-    public ChatHistory chatHistory;
+    public ChatHistory ChatHistory;
 
     public ChatService(IKernelCreat kernel)
     {
-        _kernel = kernel.KernelBuild();
-        chatGPT = _kernel.GetRequiredService<IChatCompletionService>();
+        _memory = kernel.MemoryBuild();
+        var kernel1 = kernel.KernelBuild();
+        kernel1.ImportPluginFromType<MathPlugin>();
+        kernel1.ImportPluginFromType<TimePlugin>();
+        _chatGpt = kernel1.GetRequiredService<IChatCompletionService>();
+        _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings()
+            { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
+        _dallE = kernel1.GetRequiredService<ITextToImageService>();
 
-        dallE = _kernel.GetRequiredService<ITextToImageService>();
-
-        systemMessage = "你是一个有用的AI助手，尽量用中文回答";
-        chatHistory = new ChatHistory(systemMessage);
+        var systemMessage = "你是一个有用的AI助手，用中文回答";
+        ChatHistory = new ChatHistory(systemMessage);
     }
 
-    public async Task Chat(string? ask)
+    /// <summary>
+    /// 聊天功能
+    /// </summary>
+    /// <param name="ask">用户提问</param>
+    /// <returns></returns>
+    public async Task<string> Chat(string? ask)
     {
+        string result = "";
         try
         {
             if (ask != null)
             {
-                chatHistory.AddUserMessage(ask);
                 if (ask?.Contains("生成图片") == true)
                 {
-                    var imageurl = await dallE.GenerateImageAsync(ask, 512, 512);
-                    chatHistory.AddAssistantMessage(imageurl);
+                    ChatHistory.AddUserMessage(ask);
+                    var imageUrl = await _dallE.GenerateImageAsync(ask, 512, 512);
+                    ChatHistory.AddAssistantMessage(imageUrl);
+                    result = "图片地址:" + imageUrl;
                 }
                 else
                 {
-                    var assistantReply = await chatGPT.GetChatMessageContentAsync(chatHistory,
-                        new OpenAIPromptExecutionSettings()
-                            { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions });
-                    chatHistory.AddAssistantMessage(assistantReply.Content);
+                    //搜索记忆
+                    var memory = await _memory.SearchAsync(MemoryCollectionName, ask).FirstOrDefaultAsync();
+                    if (memory != null)
+                    {
+                        ChatHistory.AddUserMessage(memory.Metadata.Text);
+                        Console.WriteLine("搜索到记忆");
+                        result = "搜索到记忆"+memory.Relevance.ToString();
+                    }
+
+                    ChatHistory.AddUserMessage(ask);
+                    var assistantReply = await _chatGpt.GetChatMessageContentAsync(ChatHistory,
+                        executionSettings: _openAiPromptExecutionSettings);
+                    if (assistantReply.Content != null) ChatHistory.AddAssistantMessage(assistantReply.Content);
                 }
             }
+            else
+            {
+                result = "请输入问题";
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred: {ex.Message}");
             Console.WriteLine(ex.StackTrace);
         }
+
+        return null;
     }
 
-//chatHistory的清空方法
+    /// <summary>
+    /// 清空聊天记录
+    /// </summary>
     public void ClearChatHistory()
     {
-        chatHistory.Clear();
+        ChatHistory.Clear();
+    }
+
+    //加载记忆
+    public async Task<string> LoadMemory()
+    {
+        var filePath = await FilePicker.Default.PickAsync();
+        var knowledges = new Knowledges();
+        if (filePath != null)
+        {
+            if (filePath.FileName.EndsWith("jsonl", StringComparison.OrdinalIgnoreCase))
+            {
+                await using var stream = await filePath.OpenReadAsync();
+
+                //读取jsonl文件
+                using (var reader = new StreamReader(stream))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        // 解析每一行 JSON 数据
+                        var knowledge = JsonConvert.DeserializeObject<KnowledgeMessages>(line);
+                        knowledges.KnowledgesList.Add(knowledge);
+                    }
+                }
+            }
+        }
+
+
+        for (int i = 0; i < knowledges.KnowledgesList.Count; i++)
+        {
+            var id = knowledges.KnowledgesList[i].KnowledgeItems[0].Content + "id" + i.ToString();
+            var text = knowledges.KnowledgesList[i].KnowledgeItems[1].Content +
+                       knowledges.KnowledgesList[i].KnowledgeItems[2].Content;
+            await _memory.SaveInformationAsync(MemoryCollectionName, id: id, text: text);
+        }
+
+        Console.WriteLine("加载记忆成功");
+        return "加载记忆成功";
     }
 }
-#pragma warning restore SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-#pragma warning restore SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+
+
+
+// 格式采用json格式，每行一个json对象，与Openai微调的格式一致
+public class KnowledgeItem
+{
+    [JsonProperty("role")] public string Role { get; set; }
+    [JsonProperty("content")] public string Content { get; set; }
+}
+
+public class KnowledgeMessages
+{
+    [JsonProperty("messages")] public List<KnowledgeItem> KnowledgeItems { get; set; }
+}
+
+public class Knowledges
+{
+    public Knowledges()
+    {
+        KnowledgesList = new List<KnowledgeMessages>();
+    }
+
+    public List<KnowledgeMessages> KnowledgesList { get; set; }
+}

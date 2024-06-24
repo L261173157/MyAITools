@@ -1,0 +1,60 @@
+@page "/plugin"
+@using MyAiTools.AiFun.Code
+@inject PluginService PluginService
+
+<h2>插件工具</h2>
+
+<div class="translator-container">
+    <div class="input-group">
+        <label for="memoryText">输入记忆:</label>
+        <textarea id="memoryText" @bind="memory"></textarea>
+        <label for="queryText">输入提问:</label>
+        <textarea id="queryText" @bind="query"></textarea>
+    </div>
+
+   @*  <div class="input-group">
+        <label for="targetLanguage">目标语言:</label>
+        <select id="targetLanguage" @bind="targetLanguage">
+            <option value="english">英语</option>
+            <option value="chinese">中文</option>
+            <!-- 添加其他语言选项 -->
+        </select>
+    </div> *@
+
+    <div class="buttons">
+        <button @onclick="DoSomeThing">执行</button>
+        <button @onclick="ClearText">清除</button>
+    </div>
+
+    <div class="output-group">
+        <label for="translatedText">结果:</label>
+        <textarea id="translatedText" readonly @bind="result"></textarea>
+    </div>
+</div>
+
+
+@code {
+    private string memory;
+    private string query;
+    private string result;
+
+    private async Task DoSomeThing()
+    {
+        result = string.Empty;
+        // result =await PluginService.DoSomeThing(memory, targetLanguage);
+        // var response = PluginService.GetPluginFunctions();
+        // foreach (var str in response)
+        // {
+        //     result += str + "\n";
+        // }
+        result =await PluginService.Remember(memory, query);
+    }
+
+    private void ClearText()
+    {
+        memory = string.Empty;
+        query = string.Empty;
+        result = string.Empty;
+    }
+
+}
