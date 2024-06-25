@@ -67,8 +67,8 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
         <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.60" />
         <PackageReference Include="Microsoft.SemanticKernel" Version="1.15.0" />
-        <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.14.1-preview" />
-        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.14.1-alpha" />
+        <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.15.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.15.0-alpha" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.15.0-alpha" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />

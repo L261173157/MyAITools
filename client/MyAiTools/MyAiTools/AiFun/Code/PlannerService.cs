@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 //using MyAiTools.AiFun.plugins.MyPlugin;
 using Microsoft.SemanticKernel.Plugins.Core;
+using MyAiTools.AiFun.plugins.MyPlugin;
 
 
 namespace MyAiTools.AiFun.Code
@@ -28,12 +29,12 @@ namespace MyAiTools.AiFun.Code
         public PlannerService(IKernelCreat kernel, ILogger<PlannerService> logger)
         {
             _kernel = kernel.KernelBuild();
-            var pluginDirectoryPath = Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "OfficePlugin");
-            _kernel.ImportPluginFromPromptDirectory(Path.Combine(pluginDirectoryPath, "SummarizePlugin"));
-            _kernel.ImportPluginFromPromptDirectory(Path.Combine(pluginDirectoryPath, "WriterPlugin"));
+            //var pluginDirectoryPath = Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "MyPlugin");
+            //_kernel.ImportPluginFromPromptDirectory(Path.Combine(pluginDirectoryPath, "TranslatePlugin"));
+            //_kernel.ImportPluginFromPromptDirectory(Path.Combine(pluginDirectoryPath, "WriterPlugin"));
 
 
-            _kernel.ImportPluginFromType<MathPlugin>();
+            _kernel.ImportPluginFromType<TestPlugin>();
             //_kernel.ImportPluginFromType<TimePlugin>();
             //_kernel.ImportPluginFromType<FileIOPlugin>();
             //_kernel.ImportPluginFromType<ConversationSummaryPlugin>();
@@ -50,8 +51,9 @@ namespace MyAiTools.AiFun.Code
             _logger = logger;
         }
 
-        public async Task<string> Plan(string? target)
+        public async Task<string> Plan(string target)
         {
+            if (target == null) throw new ArgumentNullException(nameof(target));
             try
             {
                 var plan = await planner.CreatePlanAsync(_kernel, target);
@@ -66,7 +68,6 @@ namespace MyAiTools.AiFun.Code
                 _logger.LogInformation("执行:" + '\n' + result.ToString());
 
                 return "计划:" + '\n' + plan.ToString() + '\n' + "执行:" + '\n' + result.ToString();
-                //return "计划:" + '\n' + plan.ToString() + '\n';
             }
             catch (Exception ex)
             {

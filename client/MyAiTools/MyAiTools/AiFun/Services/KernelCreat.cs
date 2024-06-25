@@ -9,6 +9,7 @@ using MyAiTools.AiFun.plugins.MyPlugin;
 using Microsoft.Maui.Storage;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Memory;
+using Microsoft.SemanticKernel.Plugins.Core;
 using Microsoft.SemanticKernel.Plugins.Memory;
 
 namespace MyAiTools.AiFun.Services
@@ -29,23 +30,19 @@ namespace MyAiTools.AiFun.Services
             var handler = new OpenAiHttpClientHandler(_baseUrl);
             var openAiKey = _baseUrl.GetApiKey();
             var builder = Kernel.CreateBuilder();
-            //var memoryBuilder = new MemoryBuilder();
             //builder.Plugins.AddFromType<MathPlugin>();
-            //添加聊天模型
+            //添加聊天模型，这里使用gpt-4o
             builder.AddOpenAIChatCompletion(modelId: "gpt-4o", apiKey: openAiKey,
                 httpClient: new HttpClient(handler));
-
-            //builder.AddOpenAIChatCompletion(modelId: "gpt-4o", apiKey: openAiKey, httpClient: new HttpClient(handler));
             //添加文本转图片模型
-
             builder.AddOpenAITextToImage(apiKey: openAiKey, httpClient: new HttpClient(handler));
             //添加插件
-            //builder.Plugins.AddFromType<MathPlugin>();
 
             var kernel = builder.Build();
             return kernel;
         }
 
+       
         [Experimental("SKEXP0001")]
         public ISemanticTextMemory MemoryBuild()
         {
@@ -54,6 +51,7 @@ namespace MyAiTools.AiFun.Services
             var memoryBuilder = new MemoryBuilder();
             memoryBuilder.WithOpenAITextEmbeddingGeneration(modelId: "text-embedding-3-small", apiKey: openAiKey,
                 httpClient: new HttpClient(handler));
+            //记忆存在位置，这里使用内存
             memoryBuilder.WithMemoryStore(new VolatileMemoryStore());
             var memory = memoryBuilder.Build();
             return memory;

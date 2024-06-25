@@ -10,6 +10,7 @@ using System.Linq;
 
 namespace MyAiTools.AiFun.Code;
 #pragma warning disable SKEXP0001
+//功能已作废
 public class PluginService
 {
     private readonly Kernel _kernel;
@@ -40,7 +41,7 @@ public class PluginService
         object? result;
         try
         {
-            //result = await _kernel.InvokeAsync(pluginFunctions["Translate"], arguments);
+            //result = await _kernel.InvokeAsync(pluginFunctions["WriteFile"], arguments);
             result = await _kernel.InvokeAsync(_pluginFunctions["Add"], new() { { "value", text }, { "amount", 2 } });
             //result= await _kernel.InvokeAsync(mathPlugin["Add"], new() { { "number1", 12 }, { "number2", 13 } });
         }

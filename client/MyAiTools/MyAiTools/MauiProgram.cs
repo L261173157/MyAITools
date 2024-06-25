@@ -4,11 +4,13 @@ using MyAiTools.AiFun.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Storage;
 using CommunityToolkit.Maui;
+using MyAiTools.AiFun.plugins.MyPlugin;
 
 namespace MyAiTools;
 
 public static class MauiProgram
 {
+    public static IServiceProvider Services;
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
@@ -30,11 +32,17 @@ public static class MauiProgram
         builder.Services.AddSingleton<ChatService>();
         builder.Services.AddTransient<PluginService>();
         builder.Services.AddTransient<PlannerService>();
+        builder.Services.AddTransient<TestPlugin>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
 #endif
-        return builder.Build();
+        var app = builder.Build();
+
+        // 保存服务提供者
+        Services = app.Services;
+
+        return app;
     }
 }

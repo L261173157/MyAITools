@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using MyAiTools.AiFun.plugins.MyPlugin;
 using Newtonsoft.Json;
 
 namespace MyAiTools.AiFun.Code;
@@ -19,6 +20,7 @@ using System;
 public class ChatService
 {
     private readonly IChatCompletionService _chatGpt;
+    private readonly Kernel _kernel;
     private readonly ITextToImageService _dallE;
     private readonly OpenAIPromptExecutionSettings _openAiPromptExecutionSettings;
     private readonly ISemanticTextMemory _memory;
@@ -29,20 +31,27 @@ public class ChatService
     public ChatService(IKernelCreat kernel)
     {
         _memory = kernel.MemoryBuild();
-        var kernel1 = kernel.KernelBuild();
-        kernel1.ImportPluginFromType<MathPlugin>();
-        kernel1.ImportPluginFromType<TimePlugin>();
-        _chatGpt = kernel1.GetRequiredService<IChatCompletionService>();
+        _kernel = kernel.KernelBuild();
+        //增加插件功能
+        _kernel.ImportPluginFromType<TimePlugin>("Time");
+        _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
+        //设置调用行为，自动调用内核函数
         _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings()
             { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
-        _dallE = kernel1.GetRequiredService<ITextToImageService>();
+        _dallE = _kernel.GetRequiredService<ITextToImageService>();
 
-        var systemMessage = "你是一个有用的AI助手，用中文回答";
+        var systemMessage =
+            """
+            You are a friendly assistant who likes to follow the rules.
+            You will complete required steps and request approval before taking any consequential actions. 
+            If the user doesn't provide enough information for you to complete a task,
+            you will keep asking questions until you have enough information to complete the task.
+            """;
         ChatHistory = new ChatHistory(systemMessage);
     }
 
     /// <summary>
-    /// 聊天功能
+    /// 聊天功能（聊天、调用函数、生成图片、调取记忆）
     /// </summary>
     /// <param name="ask">用户提问</param>
     /// <returns></returns>
@@ -68,12 +77,12 @@ public class ChatService
                     {
                         ChatHistory.AddUserMessage(memory.Metadata.Text);
                         Console.WriteLine("搜索到记忆");
-                        result = "搜索到记忆"+memory.Relevance.ToString();
+                        result = "搜索到记忆" + memory.Relevance.ToString();
                     }
 
                     ChatHistory.AddUserMessage(ask);
                     var assistantReply = await _chatGpt.GetChatMessageContentAsync(ChatHistory,
-                        executionSettings: _openAiPromptExecutionSettings);
+                        executionSettings: _openAiPromptExecutionSettings, kernel: _kernel);
                     if (assistantReply.Content != null) ChatHistory.AddAssistantMessage(assistantReply.Content);
                 }
             }
@@ -139,8 +148,6 @@ public class ChatService
         return "加载记忆成功";
     }
 }
-
-
 
 // 格式采用json格式，每行一个json对象，与Openai微调的格式一致
 public class KnowledgeItem
