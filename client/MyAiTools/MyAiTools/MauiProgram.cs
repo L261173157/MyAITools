@@ -24,14 +24,13 @@ public static class MauiProgram
         
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
-        builder.Logging.AddDebug();
+        
         
         
         builder.Services.AddSingleton<IKernelCreat, KernelCreat>();
         builder.Services.AddSingleton<IGetBaseUrl, GetBaseUrlZZZ>();
         builder.Services.AddSingleton<ChatService>();
         builder.Services.AddTransient<PluginService>();
-        builder.Services.AddTransient<PlannerService>();
         builder.Services.AddTransient<TestPlugin>();
 
 #if DEBUG

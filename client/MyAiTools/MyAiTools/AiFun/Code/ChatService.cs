@@ -13,6 +13,7 @@ using MyAiTools.AiFun.Services;
 using Microsoft.SemanticKernel.Plugins.Core;
 using Microsoft.SemanticKernel.Memory;
 using System;
+using Microsoft.Extensions.Logging;
 
 #pragma warning disable SKEXP0002 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning disable SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
@@ -26,14 +27,17 @@ public class ChatService
     private readonly ISemanticTextMemory _memory;
     private const string MemoryCollectionName = "Knowledge";
 
+    private readonly ILogger<ChatService> _logger;
+
     public ChatHistory ChatHistory;
 
-    public ChatService(IKernelCreat kernel)
+    public ChatService(IKernelCreat kernel,ILogger<ChatService> logger)
     {
         _memory = kernel.MemoryBuild();
         _kernel = kernel.KernelBuild();
         //增加插件功能
         _kernel.ImportPluginFromType<TimePlugin>("Time");
+        _kernel.ImportPluginFromType<TestPlugin>("Test");
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
         _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings()
@@ -48,6 +52,9 @@ public class ChatService
             you will keep asking questions until you have enough information to complete the task.
             """;
         ChatHistory = new ChatHistory(systemMessage);
+
+        //添加日志
+        _logger = logger;
     }
 
     /// <summary>
@@ -68,6 +75,7 @@ public class ChatService
                     var imageUrl = await _dallE.GenerateImageAsync(ask, 512, 512);
                     ChatHistory.AddAssistantMessage(imageUrl);
                     result = "图片地址:" + imageUrl;
+                    _logger.LogInformation("生成图片成功");
                 }
                 else
                 {
@@ -76,14 +84,16 @@ public class ChatService
                     if (memory != null)
                     {
                         ChatHistory.AddUserMessage(memory.Metadata.Text);
-                        Console.WriteLine("搜索到记忆");
                         result = "搜索到记忆" + memory.Relevance.ToString();
+                        _logger.LogInformation("搜索到记忆");
                     }
 
                     ChatHistory.AddUserMessage(ask);
                     var assistantReply = await _chatGpt.GetChatMessageContentAsync(ChatHistory,
                         executionSettings: _openAiPromptExecutionSettings, kernel: _kernel);
                     if (assistantReply.Content != null) ChatHistory.AddAssistantMessage(assistantReply.Content);
+                    result = "模型回复成功";
+                    _logger.LogInformation("模型回复成功");
                 }
             }
             else
@@ -97,6 +107,7 @@ public class ChatService
         {
             Console.WriteLine($"An error occurred: {ex.Message}");
             Console.WriteLine(ex.StackTrace);
+            _logger.LogError(ex.Message);
         }
 
         return null;
@@ -110,7 +121,7 @@ public class ChatService
         ChatHistory.Clear();
     }
 
-    //加载记忆
+    //加载记忆，加载jsonl文件，格式与Openai微调的格式一致
     public async Task<string> LoadMemory()
     {
         var filePath = await FilePicker.Default.PickAsync();
@@ -144,12 +155,12 @@ public class ChatService
             await _memory.SaveInformationAsync(MemoryCollectionName, id: id, text: text);
         }
 
-        Console.WriteLine("加载记忆成功");
+        _logger.LogInformation("加载记忆成功");
         return "加载记忆成功";
     }
 }
 
-// 格式采用json格式，每行一个json对象，与Openai微调的格式一致
+// 记忆格式采用json格式，每行一个json对象，与Openai微调的格式一致
 public class KnowledgeItem
 {
     [JsonProperty("role")] public string Role { get; set; }

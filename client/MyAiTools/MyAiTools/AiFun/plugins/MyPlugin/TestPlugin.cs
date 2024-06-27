@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using MyAiTools.AiFun.Code;
 using MyAiTools.AiFun.Services;
@@ -13,18 +14,24 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
 {
     public class TestPlugin
     {
-        [KernelFunction, Description("write a new .txt file on the path")]
-        public static void WriteFile(
+        private readonly ILogger<TestPlugin> _logger;
+
+        public TestPlugin(ILogger<TestPlugin> logger)
+        {
+            _logger = logger;
+        }
+
+        [KernelFunction("write_file")]
+        [Description("write a new .txt file on the path")]
+        [return:Description("return is sueccessful")]
+        public async Task<string> WriteFile(
             [Description("The text to write in file")]
             string input
         )
         {
-            string filename = "example.txt";
-            string text = input;
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                filename);
-            File.WriteAllText(filePath, text);
-            string readText = File.ReadAllText(filePath);
+            _logger.LogInformation("WriteFile started");
+            await Task.Delay(1000);
+            return "WriteFileSuccessful";
         }
     }
 }

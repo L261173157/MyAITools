@@ -11,6 +11,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Core;
 using Microsoft.SemanticKernel.Plugins.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace MyAiTools.AiFun.Services
 {
@@ -36,7 +37,10 @@ namespace MyAiTools.AiFun.Services
                 httpClient: new HttpClient(handler));
             //添加文本转图片模型
             builder.AddOpenAITextToImage(apiKey: openAiKey, httpClient: new HttpClient(handler));
-            //添加插件
+            //添加依赖注入服务
+            builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+
+            
 
             var kernel = builder.Build();
             return kernel;
