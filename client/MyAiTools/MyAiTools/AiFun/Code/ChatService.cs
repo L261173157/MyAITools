@@ -28,8 +28,11 @@ public class ChatService
     private const string MemoryCollectionName = "Knowledge";
 
     private readonly ILogger<ChatService> _logger;
-
     public ChatHistory ChatHistory;
+    //现聊天记录变化时触发
+    public event Action<string> ChatHistoryChanged;
+    //开始新回复时触发
+    public event Action BeginNewReply;
 
     public ChatService(IKernelCreat kernel,ILogger<ChatService> logger)
     {
@@ -62,36 +65,63 @@ public class ChatService
     /// </summary>
     /// <param name="ask">用户提问</param>
     /// <returns></returns>
-    public async Task<string> Chat(string? ask)
+    public async Task<string?> Chat(string? ask)
     {
-        string result = "";
         try
         {
+            string? result;
             if (ask != null)
             {
                 if (ask?.Contains("生成图片") == true)
                 {
                     ChatHistory.AddUserMessage(ask);
+                    
                     var imageUrl = await _dallE.GenerateImageAsync(ask, 512, 512);
-                    ChatHistory.AddAssistantMessage(imageUrl);
+                    ChatHistory.Add(new()
+                    {
+                        Role = AuthorRole.Assistant,
+                        Items = [new ImageContent{Uri = new Uri(imageUrl) }]
+                    } );
+                    ChatHistoryChanged(imageUrl);
                     result = "图片地址:" + imageUrl;
                     _logger.LogInformation("生成图片成功");
                 }
                 else
                 {
                     //搜索记忆
-                    var memory = await _memory.SearchAsync(MemoryCollectionName, ask).FirstOrDefaultAsync();
-                    if (memory != null)
-                    {
-                        ChatHistory.AddUserMessage(memory.Metadata.Text);
-                        result = "搜索到记忆" + memory.Relevance.ToString();
-                        _logger.LogInformation("搜索到记忆");
-                    }
+                    //var memory = await _memory.SearchAsync(MemoryCollectionName, ask).FirstOrDefaultAsync();
+                    //if (memory != null)
+                    //{
+                    //    ChatHistory.AddUserMessage(memory.Metadata.Text);
+                    //    result = "搜索到记忆" + memory.Relevance.ToString();
+                    //    _logger.LogInformation("搜索到记忆");
+                    //}
 
                     ChatHistory.AddUserMessage(ask);
-                    var assistantReply = await _chatGpt.GetChatMessageContentAsync(ChatHistory,
-                        executionSettings: _openAiPromptExecutionSettings, kernel: _kernel);
-                    if (assistantReply.Content != null) ChatHistory.AddAssistantMessage(assistantReply.Content);
+                    
+                    //异步调用模型
+                    //var assistantReply = await _chatGpt.GetChatMessageContentAsync(ChatHistory,
+                    //    executionSettings: _openAiPromptExecutionSettings, kernel: _kernel);
+                    //if (assistantReply.Content != null) ChatHistory.AddAssistantMessage(assistantReply.Content);
+
+                    //流式调用模型
+                    var assistantReply = _chatGpt.GetStreamingChatMessageContentsAsync(ChatHistory,
+                        executionSettings: _openAiPromptExecutionSettings);
+
+                    var fullMessage = string.Empty;
+                    BeginNewReply();
+                    await foreach (var message in assistantReply)
+                    {
+                        if (message.Content == null) continue;
+                        ChatHistoryChanged(message.Content);
+                        Console.Write(message.Content);
+                        if (message.Content is { Length: > 0 })
+                        {
+                            fullMessage += message.Content;
+                        }
+                    }
+                    ChatHistory.AddAssistantMessage(fullMessage);
+                    
                     result = "模型回复成功";
                     _logger.LogInformation("模型回复成功");
                 }
@@ -122,7 +152,7 @@ public class ChatService
     }
 
     //加载记忆，加载jsonl文件，格式与Openai微调的格式一致
-    public async Task<string> LoadMemory()
+    public async Task<string?> LoadMemory()
     {
         var filePath = await FilePicker.Default.PickAsync();
         var knowledges = new Knowledges();

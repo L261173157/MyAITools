@@ -6,6 +6,7 @@ using MyAiTools.AiFun.plugins.MyPlugin;
 using MyAiTools.AiFun.Services;
 using Microsoft.SemanticKernel.Plugins.Core;
 using System.Linq;
+using Microsoft.KernelMemory;
 
 
 namespace MyAiTools.AiFun.Code;
@@ -17,6 +18,8 @@ public class PluginService
 
     private readonly ISemanticTextMemory _memory;
 
+    private readonly MemoryServerless _memoryServerless;
+
     private readonly KernelPlugin _pluginFunctions;
 
     public PluginService(IKernelCreat kernel)
@@ -24,6 +27,8 @@ public class PluginService
         _kernel = kernel.KernelBuild();
 
         _memory = kernel.MemoryBuild();
+
+        _memoryServerless = kernel.MemoryServerlessBuild();
 
         //_pluginFunctions = _kernel.ImportPluginFromType<Microsoft.SemanticKernel.Plugins.Core.MathPlugin>();
         var pluginDirectoryPath =
@@ -69,7 +74,7 @@ public class PluginService
         return result;
     }
 
-    //记忆功能
+    //SK记忆功能
     public async Task<string> Remember(string memory, string query)
     {
         try
@@ -92,4 +97,37 @@ public class PluginService
             throw;
         }
     }
+
+    //KM记忆读取功能
+    public async Task<string> MemoryReadKm(string query)
+    {
+        try
+        {
+            var answer = await _memoryServerless.AskAsync(query);
+            return answer.Result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    //KM记忆写入功能
+    public async Task<string> MemoryWriteKm()
+    {
+        try
+        {
+            var filePath = await FilePicker.Default.PickAsync();
+            await _memoryServerless.ImportDocumentAsync(filePath.FullPath,documentId:filePath.FileName);
+            
+            return "保存成功";
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 }
+

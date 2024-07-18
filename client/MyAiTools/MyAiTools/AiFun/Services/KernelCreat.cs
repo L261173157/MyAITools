@@ -12,6 +12,7 @@ using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Core;
 using Microsoft.SemanticKernel.Plugins.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.KernelMemory;
 
 namespace MyAiTools.AiFun.Services
 {
@@ -40,8 +41,6 @@ namespace MyAiTools.AiFun.Services
             //添加依赖注入服务
             builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
-            
-
             var kernel = builder.Build();
             return kernel;
         }
@@ -58,6 +57,14 @@ namespace MyAiTools.AiFun.Services
             //记忆存在位置，这里使用内存
             memoryBuilder.WithMemoryStore(new VolatileMemoryStore());
             var memory = memoryBuilder.Build();
+            return memory;
+        }
+
+        public MemoryServerless MemoryServerlessBuild()
+        {
+            var handler = new OpenAiHttpClientHandler(_baseUrl);
+            var openAiKey = _baseUrl.GetApiKey();
+            var memory = new KernelMemoryBuilder().WithOpenAIDefaults(openAiKey,httpClient: new HttpClient(handler)).Build<MemoryServerless>();
             return memory;
         }
     }

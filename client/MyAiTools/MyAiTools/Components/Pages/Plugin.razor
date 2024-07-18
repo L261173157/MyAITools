@@ -12,17 +12,9 @@
         <textarea id="queryText" @bind="query"></textarea>
     </div>
 
-   @*  <div class="input-group">
-        <label for="targetLanguage">目标语言:</label>
-        <select id="targetLanguage" @bind="targetLanguage">
-            <option value="english">英语</option>
-            <option value="chinese">中文</option>
-            <!-- 添加其他语言选项 -->
-        </select>
-    </div> *@
-
     <div class="buttons">
-        <button @onclick="DoSomeThing">执行</button>
+        <button @onclick="MemoryWriteKm">写入记忆</button>
+        <button @onclick="DoSomeThing">读取记忆</button>
         <button @onclick="ClearText">清除</button>
     </div>
 
@@ -47,7 +39,14 @@
         // {
         //     result += str + "\n";
         // }
-        result =await PluginService.Remember(memory, query);
+        // result =await PluginService.Remember(memory, query);
+        result = await PluginService.MemoryReadKm(query);
+    }
+    //写入记忆
+    private async Task MemoryWriteKm()
+    {
+        result = string.Empty;
+        result = await PluginService.MemoryWriteKm();
     }
 
     private void ClearText()

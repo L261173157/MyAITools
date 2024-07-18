@@ -4,91 +4,107 @@
 @using CommunityToolkit.Maui.Storage
 @using Microsoft.SemanticKernel
 @using MyAiTools.AiFun.Code
-@using Microsoft.SemanticKernel.ChatCompletion
-@inject ChatService chatService
-@inject NavigationManager Navigation
+@inject ChatService ChatService
+
 
 <h3>聊天工具</h3>
 
 <div class="chat-container">
-    @foreach (var message in messages)
+    @foreach (var message in _messages)
     {
         <div class="message @(message.IsUser ? "user-message" : "system-message")">
-            @foreach (var line in message.Content.Split('\n'))
+            @if (message.Content != null)
             {
-                @((MarkupString)FormatMessage(line))
-                <br/>
+                foreach (var line in message.Content.Split('\n'))
+                {
+                    @((MarkupString)FormatMessage(line))
+                    <br/>
+                }
             }
         </div>
     }
 </div>
 
 <div class="input-group">
-    <input @bind="userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."/>
+    <input @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."/>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
     <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
-    <button class="btn btn-primary" @onclick="SaveConversation">保存</button>
-    <button class="btn btn-primary" @onclick="LoadMemory">记忆</button>
+    @* <button class="btn btn-primary" @onclick="SaveConversation">保存</button> *@
+    @* <button class="btn btn-primary" @onclick="LoadMemory">记忆</button> *@
 </div>
-
+@* 
 <div class="message-tip">
-    @messageTip
-</div>
+    @_messageTip
+</div> *@
 
 @code {
-    private readonly List<MessageModel> messages = new();
-    private readonly List<ChatMessageContent> chatMessages = new();
-    private string? userInput;
-    private string messageTip;
+    private readonly List<MessageModel> _messages = [];
+
+    private string? _newReply = string.Empty;
+    private string? _userInput;
+    private string? _messageTip;
 
     protected override void OnInitialized()
     {
-        addMessage();
+        ChatService.ChatHistoryChanged += ReadMessage;
+        ChatService.BeginNewReply += BeginNewReply;
     }
 
-    private void addMessage()
+    /// <summary>
+    /// 开始一个新的回复
+    /// </summary>
+    private void BeginNewReply()
     {
-        chatMessages.Clear();
-        messages.Clear();
-        foreach (var chatMessageContent in chatService.ChatHistory)
-        {
-            chatMessages.Add(chatMessageContent);
-        }
-
-        foreach (var chatMessageContent in chatMessages)
-        {
-            if (chatMessageContent.Role.Label == "assistant")
-            {
-                messages.Add(new MessageModel { Content = chatMessageContent.ToString(), IsUser = false });
-            }
-
-            if (chatMessageContent.Role.Label == "user")
-            {
-                messages.Add(new MessageModel { Content = chatMessageContent.ToString(), IsUser = true });
-            }
-        }
+        _newReply = string.Empty;
+        _messages.Add(new MessageModel { Content = _newReply, IsUser = false });
     }
 
+    /// <summary>
+    /// 刷新消息
+    /// </summary>
+    private void ReadMessage(string streamMessage)
+    {
+        Task.Run(() =>
+        {
+            _newReply += streamMessage;
+            _messages.Last().Content = _newReply;
+        });
+        //手工渲染
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// 向后台发送消息
+    /// </summary>
+    /// <returns></returns>
     private async Task SendMessage()
     {
-        if (!string.IsNullOrWhiteSpace(userInput))
+        if (!string.IsNullOrWhiteSpace(_userInput))
         {
             // 这里可以添加代码来处理用户的输入，比如发送到后端API并获取回复
-            var tempUserInput = userInput;
-            userInput = string.Empty; // 清空输入框
+            var tempUserInput = _userInput;
+            _messages.Add(new MessageModel { Content = _userInput, IsUser = true });
+            _userInput = string.Empty; // 清空输入框
             // 模拟系统回复
-            var response = await chatService.Chat(tempUserInput);
+            var response = await ChatService.Chat(tempUserInput);
             SetMessageTip(response);
-            addMessage();
         }
     }
 
+    /// <summary>
+    /// 清空消息
+    /// </summary>
     private void ClearMessage()
     {
-        chatService.ClearChatHistory();
-        addMessage();
+        _messages.Clear();
+        ChatService.ClearChatHistory();
     }
 
+    /// <summary>
+    /// 快捷键处理
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
     private async Task HandleKeyUp(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -97,6 +113,11 @@
         }
     }
 
+    /// <summary>
+    /// 格式化消息
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
     private string FormatMessage(string message)
     {
         var urlPattern = @"(http|https)://[^\s]+";
@@ -107,6 +128,10 @@
         });
     }
 
+    /// <summary>
+    /// 保存对话
+    /// </summary>
+    /// <returns></returns>
     private async Task SaveConversation()
     {
         var options = new JsonSerializerOptions
@@ -114,7 +139,7 @@
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true // 美化输出，使其更具可读性（可选）
         };
-        var json = JsonSerializer.Serialize(messages, options);
+        var json = JsonSerializer.Serialize(_messages, options);
         using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
         var fileName = $"ChatHistory_{DateTime.Now:yyyyMMdd_HHmmss}.json";
         var fileSaverResult = await FileSaver.SaveAsync(fileName, stream);
@@ -130,19 +155,19 @@
 
     private async Task LoadMemory()
     {
-        var response = await chatService.LoadMemory();
+        var response = await ChatService.LoadMemory();
         SetMessageTip(response);
     }
 
-    private void SetMessageTip(string tip)
+    private void SetMessageTip(string? tip)
     {
-        messageTip = tip;
+        _messageTip = tip;
     }
 
 
     private class MessageModel
     {
-        public string? Content { get; init; }
+        public string? Content { get; set; }
         public bool IsUser { get; init; }
     }
 
