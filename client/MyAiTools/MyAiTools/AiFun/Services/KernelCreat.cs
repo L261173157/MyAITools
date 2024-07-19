@@ -33,14 +33,14 @@ namespace MyAiTools.AiFun.Services
             var openAiKey = _baseUrl.GetApiKey();
             var builder = Kernel.CreateBuilder();
             //builder.Plugins.AddFromType<MathPlugin>();
-            //添加聊天模型，这里使用gpt-4o
-            builder.AddOpenAIChatCompletion(modelId: "gpt-4o", apiKey: openAiKey,
+            //添加聊天模型
+            builder.AddOpenAIChatCompletion(modelId: "gpt-4o-mini", apiKey: openAiKey,
                 httpClient: new HttpClient(handler));
             //添加文本转图片模型
             builder.AddOpenAITextToImage(apiKey: openAiKey, httpClient: new HttpClient(handler));
             //添加依赖注入服务
             builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
-
+            //builder.Plugins.AddFromType<TimePlugin>();
             var kernel = builder.Build();
             return kernel;
         }

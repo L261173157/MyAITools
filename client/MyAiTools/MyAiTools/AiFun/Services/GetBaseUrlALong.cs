@@ -22,10 +22,10 @@ namespace MyAiTools.AiFun.Services
             return baseUrl;
         }
 
-        public string GetPath()
-        {
-            throw new NotImplementedException();
-        }
+        //public string GetPath()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public string GetApiKey()
         {

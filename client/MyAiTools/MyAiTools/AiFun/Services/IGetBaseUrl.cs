@@ -10,7 +10,7 @@ namespace MyAiTools.AiFun.Services
     {
         public string GetScheme();
         public string GetHost();
-        public string GetPath();
+        //public string GetPath();
         public string GetApiKey();
     }
 }

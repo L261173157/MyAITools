@@ -114,18 +114,20 @@
     }
 
     /// <summary>
-    /// 格式化消息
+    /// 格式化消息，用于图片显示
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
     private string FormatMessage(string message)
     {
-        var urlPattern = @"(http|https)://[^\s]+";
-        return System.Text.RegularExpressions.Regex.Replace(message, urlPattern, match =>
-        {
-            var url = match.Value;
-            return $"<iframe src=\"{url}\" width=\"512\" height=\"512\"></iframe>";
-        });
+        // var urlPattern = @"(http|https):[^\s]+";
+        // return System.Text.RegularExpressions.Regex.Replace(message, urlPattern, match =>
+        // {
+        //     var url = match.Value;
+        //     return $"<iframe src=\"{url}\" width=\"512\" height=\"512\"></iframe>";
+        // });
+        //todo: 临时屏蔽掉图片显示功能，未来可以添加更多的格式化规则
+        return message;
     }
 
     /// <summary>

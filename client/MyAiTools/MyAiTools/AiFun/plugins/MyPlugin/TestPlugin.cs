@@ -12,6 +12,9 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace MyAiTools.AiFun.plugins.MyPlugin
 {
+    /// <summary>
+    /// 本地函数功能
+    /// </summary>
     public class TestPlugin
     {
         private readonly ILogger<TestPlugin> _logger;
