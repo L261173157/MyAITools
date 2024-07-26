@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using MyAiTools.AiFun.Code;
 using MyAiTools.AiFun.Services;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ namespace MyAiTools;
 public static class MauiProgram
 {
     public static IServiceProvider Services;
+    [Experimental("SKEXP0001")]
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
@@ -25,13 +27,12 @@ public static class MauiProgram
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
         
-        
-        
-        builder.Services.AddSingleton<IKernelCreat, KernelCreat>();
-        builder.Services.AddSingleton<IGetBaseUrl, GetBaseUrlZZZ>();
+        builder.Services.AddTransient<IKernelCreat, KernelCreat>();
+        builder.Services.AddTransient<IGetBaseUrl, GetBaseUrlZZZ>();
         builder.Services.AddSingleton<ChatService>();
-        builder.Services.AddTransient<PluginService>();
+        builder.Services.AddSingleton<PluginService>();
         builder.Services.AddTransient<TestPlugin>();
+        builder.Services.AddTransient<GenerateImagePlugin>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

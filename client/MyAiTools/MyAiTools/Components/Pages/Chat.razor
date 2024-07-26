@@ -2,6 +2,7 @@
 @using System.Text
 @using System.Text.Json
 @using CommunityToolkit.Maui.Storage
+@using Markdig
 @using Microsoft.SemanticKernel
 @using MyAiTools.AiFun.Code
 @inject ChatService ChatService
@@ -15,11 +16,7 @@
         <div class="message @(message.IsUser ? "user-message" : "system-message")">
             @if (message.Content != null)
             {
-                foreach (var line in message.Content.Split('\n'))
-                {
-                    @((MarkupString)FormatMessage(line))
-                    <br/>
-                }
+                @((MarkupString)FormatMessage(message.Content))
             }
         </div>
     }
@@ -120,14 +117,9 @@
     /// <returns></returns>
     private string FormatMessage(string message)
     {
-        // var urlPattern = @"(http|https):[^\s]+";
-        // return System.Text.RegularExpressions.Regex.Replace(message, urlPattern, match =>
-        // {
-        //     var url = match.Value;
-        //     return $"<iframe src=\"{url}\" width=\"512\" height=\"512\"></iframe>";
-        // });
-        //todo: 临时屏蔽掉图片显示功能，未来可以添加更多的格式化规则
-        return message;
+        var mdMessage = Markdown.ToHtml(message);
+        //todo: 临时屏蔽掉图片显示功能，改为markdown格式显示
+        return mdMessage;
     }
 
     /// <summary>
@@ -175,3 +167,4 @@
 
 
 }
+

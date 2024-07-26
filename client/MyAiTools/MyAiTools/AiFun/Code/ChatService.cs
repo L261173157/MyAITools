@@ -23,7 +23,6 @@ public class ChatService
 {
     private readonly IChatCompletionService _chatGpt;
     private readonly Kernel _kernel;
-    private readonly ITextToImageService _dallE;
     private readonly OpenAIPromptExecutionSettings _openAiPromptExecutionSettings;
     private readonly ISemanticTextMemory _memory;
     private const string MemoryCollectionName = "Knowledge";
@@ -43,13 +42,15 @@ public class ChatService
         _memory = kernel.MemoryBuild();
         _kernel = kernel.KernelBuild();
         //增加插件功能
-        _kernel.ImportPluginFromType<TimePlugin>();
-        //_kernel.ImportPluginFromType<TestPlugin>();
+        _kernel.ImportPluginFromType<TimePlugin>("Time");
+        //增加图片生成插件
+        var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
+        if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "GenerateImage");
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
         _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings()
         { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
-        _dallE = _kernel.GetRequiredService<ITextToImageService>();
+        
 
         var systemMessage =
             """
@@ -76,22 +77,7 @@ public class ChatService
             string? result;
             if (ask != null)
             {
-                //if (ask?.Contains("生成图片") == true)
-                //{
-                //    ChatHistory.AddUserMessage(ask);
-
-                //    var imageUrl = await _dallE.GenerateImageAsync(ask, 512, 512);
-                //    ChatHistory.Add(new()
-                //    {
-                //        Role = AuthorRole.Assistant,
-                //        Items = [new ImageContent{Uri = new Uri(imageUrl) }]
-                //    } );
-                //    ChatHistoryChanged(imageUrl);
-                //    result = "图片地址:" + imageUrl;
-                //    _logger.LogInformation("生成图片成功");
-                //}
-                //else
-                //{
+               
                 //搜索记忆
                 //var memory = await _memory.SearchAsync(MemoryCollectionName, ask).FirstOrDefaultAsync();
                 //if (memory != null)

@@ -59,6 +59,7 @@
 
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.Maui" Version="9.0.2" />
+        <PackageReference Include="Markdig" Version="0.37.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
         <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.68.240716.1" />
