@@ -19,10 +19,10 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
     [Experimental("SKEXP0001")]
     public class GenerateImagePlugin
     {
-        private readonly ILogger<TestPlugin> _logger;
+        private readonly ILogger<GenerateImagePlugin> _logger;
         private readonly ITextToImageService _dallE;
 
-        public GenerateImagePlugin(IKernelCreat kernel,ILogger<TestPlugin> logger)
+        public GenerateImagePlugin(IKernelCreat kernel,ILogger<GenerateImagePlugin> logger)
         {
             _logger = logger;
             var kernel1 = kernel.KernelBuild();

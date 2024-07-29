@@ -59,7 +59,7 @@ namespace MyAiTools.AiFun.Services
             var memory = memoryBuilder.Build();
             return memory;
         }
-
+        //用Kernel Memory的无服务器版本
         public MemoryServerless MemoryServerlessBuild()
         {
             var handler = new OpenAiHttpClientHandler(_baseUrl);

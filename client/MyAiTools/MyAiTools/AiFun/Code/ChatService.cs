@@ -24,8 +24,6 @@ public class ChatService
     private readonly IChatCompletionService _chatGpt;
     private readonly Kernel _kernel;
     private readonly OpenAIPromptExecutionSettings _openAiPromptExecutionSettings;
-    private readonly ISemanticTextMemory _memory;
-    private const string MemoryCollectionName = "Knowledge";
 
     private readonly ILogger<ChatService> _logger;
 
@@ -39,18 +37,22 @@ public class ChatService
 
     public ChatService(IKernelCreat kernel, ILogger<ChatService> logger)
     {
-        _memory = kernel.MemoryBuild();
+
         _kernel = kernel.KernelBuild();
         //增加插件功能
         _kernel.ImportPluginFromType<TimePlugin>("Time");
         //增加图片生成插件
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
         if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "GenerateImage");
+        //增加RAG插件
+        var rag = MauiProgram.Services.GetService(typeof(RagPlugin));
+        if (rag != null) _kernel.ImportPluginFromObject(rag, "RagPlugin");
+
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
         _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings()
-        { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
-        
+            { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
+
 
         var systemMessage =
             """
@@ -77,16 +79,6 @@ public class ChatService
             string? result;
             if (ask != null)
             {
-               
-                //搜索记忆
-                //var memory = await _memory.SearchAsync(MemoryCollectionName, ask).FirstOrDefaultAsync();
-                //if (memory != null)
-                //{
-                //    ChatHistory.AddUserMessage(memory.Metadata.Text);
-                //    result = "搜索到记忆" + memory.Relevance.ToString();
-                //    _logger.LogInformation("搜索到记忆");
-                //}
-
                 ChatHistory.AddUserMessage(ask);
 
                 ////异步调用模型
@@ -103,7 +95,7 @@ public class ChatService
 
                 //流式调用模型
                 var assistantReply = _chatGpt.GetStreamingChatMessageContentsAsync(ChatHistory,
-                    executionSettings: _openAiPromptExecutionSettings,kernel:_kernel);
+                    executionSettings: _openAiPromptExecutionSettings, kernel: _kernel);
                 var fullMessage = string.Empty;
                 BeginNewReply?.Invoke();
                 await foreach (var message in assistantReply)
@@ -116,6 +108,7 @@ public class ChatService
                         fullMessage += message.Content;
                     }
                 }
+
                 ChatHistory.AddAssistantMessage(fullMessage);
 
                 result = "模型回复成功";
@@ -146,63 +139,4 @@ public class ChatService
         ChatHistory.Clear();
     }
 
-    //加载记忆，加载jsonl文件，格式与Openai微调的格式一致
-    public async Task<string?> LoadMemory()
-    {
-        var filePath = await FilePicker.Default.PickAsync();
-        var knowledges = new Knowledges();
-        if (filePath != null)
-        {
-            if (filePath.FileName.EndsWith("jsonl", StringComparison.OrdinalIgnoreCase))
-            {
-                await using var stream = await filePath.OpenReadAsync();
-
-                //读取jsonl文件
-                using (var reader = new StreamReader(stream))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        // 解析每一行 JSON 数据
-                        var knowledge = JsonConvert.DeserializeObject<KnowledgeMessages>(line);
-                        knowledges.KnowledgesList.Add(knowledge);
-                    }
-                }
-            }
-        }
-
-
-        for (int i = 0; i < knowledges.KnowledgesList.Count; i++)
-        {
-            var id = knowledges.KnowledgesList[i].KnowledgeItems[0].Content + "id" + i.ToString();
-            var text = knowledges.KnowledgesList[i].KnowledgeItems[1].Content +
-                       knowledges.KnowledgesList[i].KnowledgeItems[2].Content;
-            await _memory.SaveInformationAsync(MemoryCollectionName, id: id, text: text);
-        }
-
-        _logger.LogInformation("加载记忆成功");
-        return "加载记忆成功";
-    }
-}
-
-// 记忆格式采用json格式，每行一个json对象，与Openai微调的格式一致
-public class KnowledgeItem
-{
-    [JsonProperty("role")] public string Role { get; set; }
-    [JsonProperty("content")] public string Content { get; set; }
-}
-
-public class KnowledgeMessages
-{
-    [JsonProperty("messages")] public List<KnowledgeItem> KnowledgeItems { get; set; }
-}
-
-public class Knowledges
-{
-    public Knowledges()
-    {
-        KnowledgesList = new List<KnowledgeMessages>();
-    }
-
-    public List<KnowledgeMessages> KnowledgesList { get; set; }
 }
