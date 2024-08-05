@@ -20,6 +20,8 @@ namespace MyAiTools.AiFun.Services
 
     {
         private readonly IGetBaseUrl _baseUrl;
+        private const string OpenAiChatModelId = "gpt-4o-mini";
+        private const string OpenAiEmbeddingModelId = "text-embedding-3-small";
 
         public KernelCreat(IGetBaseUrl baseUrl)
         {
@@ -34,7 +36,7 @@ namespace MyAiTools.AiFun.Services
             var builder = Kernel.CreateBuilder();
             //builder.Plugins.AddFromType<MathPlugin>();
             //添加聊天模型
-            builder.AddOpenAIChatCompletion(modelId: "gpt-4o-mini", apiKey: openAiKey,
+            builder.AddOpenAIChatCompletion(modelId: OpenAiChatModelId, apiKey: openAiKey,
                 httpClient: new HttpClient(handler));
             //添加文本转图片模型
             builder.AddOpenAITextToImage(apiKey: openAiKey, httpClient: new HttpClient(handler));
@@ -52,7 +54,7 @@ namespace MyAiTools.AiFun.Services
             var handler = new OpenAiHttpClientHandler(_baseUrl);
             var openAiKey = _baseUrl.GetApiKey();
             var memoryBuilder = new MemoryBuilder();
-            memoryBuilder.WithOpenAITextEmbeddingGeneration(modelId: "text-embedding-3-small", apiKey: openAiKey,
+            memoryBuilder.WithOpenAITextEmbeddingGeneration(modelId: OpenAiEmbeddingModelId, apiKey: openAiKey,
                 httpClient: new HttpClient(handler));
             //记忆存在位置，这里使用内存
             memoryBuilder.WithMemoryStore(new VolatileMemoryStore());

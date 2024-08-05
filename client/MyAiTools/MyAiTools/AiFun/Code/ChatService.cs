@@ -45,8 +45,8 @@ public class ChatService
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
         if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "GenerateImage");
         //增加RAG插件
-        var rag = MauiProgram.Services.GetService(typeof(RagPlugin));
-        if (rag != null) _kernel.ImportPluginFromObject(rag, "RagPlugin");
+        //var rag = MauiProgram.Services.GetService(typeof(RagPlugin));
+        //if (rag != null) _kernel.ImportPluginFromObject(rag, "RagPlugin");
 
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
