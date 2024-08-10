@@ -46,12 +46,12 @@ public class ChatService
         _kernel.ImportPluginFromType<TimePlugin>("Time");
         //增加图片生成插件
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
-        if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "GenerateImage");
-        //增加RAG插件
-        //var rag = MauiProgram.Services.GetService(typeof(RagPlugin));
-        //if (rag != null) _kernel.ImportPluginFromObject(rag, "RagPlugin");
+        if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "Generate_Image");
         //增加KM插件
-        _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "memory");
+        _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
+        //增加本地工具插件
+        var tools= MauiProgram.Services.GetService(typeof(ToolsPlugin));
+        if (tools != null) _kernel.ImportPluginFromObject(tools, "Local_Tools");
 
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
@@ -64,6 +64,7 @@ public class ChatService
             You are a friendly assistant who likes to follow the rules.
             You will complete required steps and request approval before taking any consequential actions. 
             If the user doesn't provide enough information for you to complete a task,
+            try to get the information from kernel memory,
             you will keep asking questions until you have enough information to complete the task.
             """;
         ChatHistory = new ChatHistory(systemMessage);
@@ -173,21 +174,13 @@ public class ChatService
 
     public async Task MemoryDelFile(string? documentId)
     {
-        try
+        if (documentId == null)
         {
-            if (documentId==null)
-            {
-                await _memoryServerless.DeleteIndexAsync("default");
-            }
-            else
-            {
-                await _memoryServerless.DeleteDocumentAsync(documentId);
-            }
+            await _memoryServerless.DeleteIndexAsync("default");
         }
-        catch (Exception e)
+        else
         {
-            Console.WriteLine(e);
-            throw;
+            await _memoryServerless.DeleteDocumentAsync(documentId);
         }
     }
 }

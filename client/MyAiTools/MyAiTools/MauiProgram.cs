@@ -33,7 +33,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<PluginService>();
         builder.Services.AddTransient<TestPlugin>();
         builder.Services.AddTransient<GenerateImagePlugin>();
-        builder.Services.AddTransient<RagPlugin>();
+        builder.Services.AddTransient<ToolsPlugin>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

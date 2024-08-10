@@ -31,8 +31,8 @@ public class PluginService
         //_memoryServerless = kernel.MemoryServerlessBuild();
 
         //Ôö¼ÓRAG²å¼þ
-        var rag = MauiProgram.Services.GetService(typeof(RagPlugin));
-        if (rag != null) _kernel.ImportPluginFromObject(rag, "RagPlugin");
+        var rag = MauiProgram.Services.GetService(typeof(ToolsPlugin));
+        if (rag != null) _kernel.ImportPluginFromObject(rag, "ToolsPlugin");
 
         //_pluginFunctions = _kernel.ImportPluginFromType<Microsoft.SemanticKernel.Plugins.Core.MathPlugin>();
         //var pluginDirectoryPath =
