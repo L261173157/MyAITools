@@ -26,14 +26,18 @@ public class PluginService
     {
         _kernel = kernel.KernelBuild();
 
-        _memory = kernel.MemoryBuild();
+        //_memory = kernel.MemoryBuild();
 
-        _memoryServerless = kernel.MemoryServerlessBuild();
+        //_memoryServerless = kernel.MemoryServerlessBuild();
+
+        //增加RAG插件
+        var rag = MauiProgram.Services.GetService(typeof(RagPlugin));
+        if (rag != null) _kernel.ImportPluginFromObject(rag, "RagPlugin");
 
         //_pluginFunctions = _kernel.ImportPluginFromType<Microsoft.SemanticKernel.Plugins.Core.MathPlugin>();
-        var pluginDirectoryPath =
-            Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "OfficePlugin", "WriterPlugin");
-        _pluginFunctions = _kernel.ImportPluginFromPromptDirectory(pluginDirectoryPath);
+        //var pluginDirectoryPath =
+        //    Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "OfficePlugin", "WriterPlugin");
+        //_pluginFunctions = _kernel.ImportPluginFromPromptDirectory(pluginDirectoryPath);
 
 
         //添加本地函数功能
@@ -119,8 +123,9 @@ public class PluginService
         try
         {
             var filePath = await FilePicker.Default.PickAsync();
-            await _memoryServerless.ImportDocumentAsync(filePath.FullPath,documentId:filePath.FileName);
-            
+            if (filePath != null)
+                await _memoryServerless.ImportDocumentAsync(filePath.FullPath, documentId: filePath.FileName);
+
             return "保存成功";
         }
         catch (Exception e)

@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 using System.Text.Json;
+using Microsoft.KernelMemory;
 using MyAiTools.AiFun.plugins.MyPlugin;
 using Newtonsoft.Json;
 
@@ -15,7 +17,7 @@ using Microsoft.SemanticKernel.Memory;
 using System;
 using Microsoft.Extensions.Logging;
 using System.Text;
-
+using System.Net;
 
 #pragma warning disable SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning disable SKEXP0050 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
@@ -23,6 +25,7 @@ public class ChatService
 {
     private readonly IChatCompletionService _chatGpt;
     private readonly Kernel _kernel;
+    private readonly MemoryServerless _memoryServerless;
     private readonly OpenAIPromptExecutionSettings _openAiPromptExecutionSettings;
 
     private readonly ILogger<ChatService> _logger;
@@ -37,8 +40,8 @@ public class ChatService
 
     public ChatService(IKernelCreat kernel, ILogger<ChatService> logger)
     {
-
         _kernel = kernel.KernelBuild();
+        _memoryServerless = kernel.MemoryServerlessBuild();
         //增加插件功能
         _kernel.ImportPluginFromType<TimePlugin>("Time");
         //增加图片生成插件
@@ -47,6 +50,8 @@ public class ChatService
         //增加RAG插件
         //var rag = MauiProgram.Services.GetService(typeof(RagPlugin));
         //if (rag != null) _kernel.ImportPluginFromObject(rag, "RagPlugin");
+        //增加KM插件
+        _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "memory");
 
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
@@ -139,4 +144,50 @@ public class ChatService
         ChatHistory.Clear();
     }
 
+    /// <summary>
+    /// 存储文件到记忆
+    /// </summary>
+    /// <returns></returns>
+    public async Task MemorySaveFile()
+    {
+        try
+        {
+            var filePath = await FilePicker.Default.PickAsync();
+            using var md5 = MD5.Create();
+            if (filePath?.FileName != null)
+            {
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(filePath?.FileName));
+                var documentId = BitConverter.ToString(hash).ToLower();
+                if (!await _memoryServerless.IsDocumentReadyAsync(documentId))
+                {
+                    await _memoryServerless.ImportDocumentAsync(filePath.FullPath, documentId);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    public async Task MemoryDelFile(string? documentId)
+    {
+        try
+        {
+            if (documentId==null)
+            {
+                await _memoryServerless.DeleteIndexAsync("default");
+            }
+            else
+            {
+                await _memoryServerless.DeleteDocumentAsync(documentId);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 }
