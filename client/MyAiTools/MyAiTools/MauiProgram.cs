@@ -34,6 +34,7 @@ public static class MauiProgram
         builder.Services.AddTransient<TestPlugin>();
         builder.Services.AddTransient<GenerateImagePlugin>();
         builder.Services.AddTransient<ToolsPlugin>();
+        builder.Services.AddTransient<SearchPlugin>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

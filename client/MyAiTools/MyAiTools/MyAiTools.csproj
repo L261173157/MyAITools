@@ -59,6 +59,7 @@
 
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.Maui" Version="9.0.2" />
+        <PackageReference Include="itext7" Version="8.0.5" />
         <PackageReference Include="Markdig" Version="0.37.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
@@ -70,9 +71,11 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
         <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.80" />
         <PackageReference Include="Microsoft.SemanticKernel" Version="1.17.1" />
-        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.15.0-alpha" />
-        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.15.0-alpha" />
+        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.17.1-alpha" />
+        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.17.1-alpha" />
+        <PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.17.1-alpha" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="NPOI" Version="2.7.1" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 

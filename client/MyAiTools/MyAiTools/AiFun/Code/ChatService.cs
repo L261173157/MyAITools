@@ -42,16 +42,26 @@ public class ChatService
     {
         _kernel = kernel.KernelBuild();
         _memoryServerless = kernel.MemoryServerlessBuild();
-        //增加插件功能
+        //增加内置插件
         _kernel.ImportPluginFromType<TimePlugin>("Time");
+        _kernel.ImportPluginFromType<ConversationSummaryPlugin>("ConversationSummary");
+        _kernel.ImportPluginFromType<FileIOPlugin>("FileIO");
+        _kernel.ImportPluginFromType<HttpPlugin>("Http");
+        _kernel.ImportPluginFromType<MathPlugin>("Math");
+        _kernel.ImportPluginFromType<TextPlugin>("Text");
+        _kernel.ImportPluginFromType<WaitPlugin>("Wait");
+
         //增加图片生成插件
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
         if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "Generate_Image");
         //增加KM插件
         _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
         //增加本地工具插件
-        var tools= MauiProgram.Services.GetService(typeof(ToolsPlugin));
+        var tools = MauiProgram.Services.GetService(typeof(ToolsPlugin));
         if (tools != null) _kernel.ImportPluginFromObject(tools, "Local_Tools");
+        //增加搜索插件
+        var searchPlugin = MauiProgram.Services.GetService(typeof(SearchPlugin));
+        if (searchPlugin is SearchPlugin search) _kernel.ImportPluginFromObject(search.Bing, "Search");
 
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
@@ -63,8 +73,9 @@ public class ChatService
             """
             You are a friendly assistant who likes to follow the rules.
             You will complete required steps and request approval before taking any consequential actions. 
-            If the user doesn't provide enough information for you to complete a task,
-            try to get the information from kernel memory,
+            If the user doesn't provide enough information for you to complete a task or if you don't have enough information to complete a task, 
+            you can try to get the information from search plugin,
+            after that try to get the information from kernel memory plugin,
             you will keep asking questions until you have enough information to complete the task.
             """;
         ChatHistory = new ChatHistory(systemMessage);
@@ -171,16 +182,29 @@ public class ChatService
             throw;
         }
     }
-
+    /// <summary>
+    /// 删除记忆中的文件
+    /// </summary>
+    /// <param name="documentId"></param>
+    /// <returns></returns>
     public async Task MemoryDelFile(string? documentId)
     {
         if (documentId == null)
         {
-            await _memoryServerless.DeleteIndexAsync("default");
+            foreach (var index in await _memoryServerless.ListIndexesAsync())
+            {
+                if (index.Name == "default")
+                {
+                    await _memoryServerless.DeleteIndexAsync("default");
+                }
+            }
         }
         else
         {
-            await _memoryServerless.DeleteDocumentAsync(documentId);
+            if (await _memoryServerless.IsDocumentReadyAsync(documentId))
+            {
+                await _memoryServerless.DeleteDocumentAsync(documentId);
+            }
         }
     }
 }

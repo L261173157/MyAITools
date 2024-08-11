@@ -31,17 +31,13 @@
     @* <button class="btn btn-primary" @onclick="SaveConversation">保存</button> *@
     @* <button class="btn btn-primary" @onclick="LoadMemory">记忆</button> *@
 </div>
-@* 
-<div class="message-tip">
-    @_messageTip
-</div> *@
+
 
 @code {
     private readonly List<MessageModel> _messages = [];
 
     private string? _newReply = string.Empty;
     private string? _userInput;
-    private string? _messageTip;
 
     protected override void OnInitialized()
     {
@@ -86,7 +82,6 @@
             _userInput = string.Empty; // 清空输入框
             // 模拟系统回复
             var response = await ChatService.Chat(tempUserInput);
-            SetMessageTip(response);
         }
     }
 
@@ -139,14 +134,6 @@
         using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
         var fileName = $"ChatHistory_{DateTime.Now:yyyyMMdd_HHmmss}.json";
         var fileSaverResult = await FileSaver.SaveAsync(fileName, stream);
-        if (fileSaverResult.IsSuccessful)
-        {
-            SetMessageTip("保存成功");
-        }
-        else
-        {
-            SetMessageTip("保存失败");
-        }
     }
 
     //保存文件
@@ -155,17 +142,14 @@
         await ChatService.MemorySaveFile();
     }
 
+    //删除记忆中的文件
     private async Task MemoryDelFile()
     {
+        //如果没有输入文件名，则删除所有文件
         await ChatService.MemoryDelFile(_userInput);
     }
 
-    private async Task SetMessageTip(string? tip)
-    {
-        
-    }
-
-
+    //对话框显示模型
     private class MessageModel
     {
         public string? Content { get; set; }
