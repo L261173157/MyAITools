@@ -20,7 +20,7 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
         public SearchPlugin(ILogger<SearchPlugin> logger)
         {
             _logger = logger;
-            var bingApiKey = Environment.GetEnvironmentVariable("BingApiKey");
+            var bingApiKey = Environment.GetEnvironmentVariable("BING_SEARCH_V7_SUBSCRIPTION_KEY");
             if (bingApiKey == null) return;
             var bingConnector = new BingConnector(bingApiKey);
             Bing= new WebSearchEnginePlugin(bingConnector);

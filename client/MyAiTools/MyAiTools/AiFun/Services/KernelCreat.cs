@@ -73,14 +73,19 @@ namespace MyAiTools.AiFun.Services
             string mainDir = FileSystem.Current.AppDataDirectory;
             var handler = new OpenAiHttpClientHandler(_baseUrl);
             var openAiKey = _baseUrl.GetApiKey();
-            //var memory = new KernelMemoryBuilder().WithOpenAIDefaults(openAiKey,httpClient: new HttpClient(handler)).Build<MemoryServerless>();
+            //var memory = new KernelMemoryBuilder().WithOpenAIDefaults(openAiKey, httpClient: new HttpClient(handler)).Build<MemoryServerless>();
             var memory = new KernelMemoryBuilder()
                 .WithOpenAITextEmbeddingGeneration(
                     new OpenAIConfig() { APIKey = openAiKey, EmbeddingModel = OpenAiEmbeddingModelId },
                     httpClient: new HttpClient(handler))
                 .WithOpenAITextGeneration(new OpenAIConfig() { APIKey = openAiKey, TextModel = OpenAiChatModelId },
-                    httpClient: new HttpClient(handler)).WithSimpleVectorDb(new SimpleVectorDbConfig(){Directory = mainDir,StorageType = FileSystemTypes.Disk})
-                .WithSimpleFileStorage(new SimpleFileStorageConfig(){ Directory = mainDir, StorageType = FileSystemTypes.Disk }).Build<MemoryServerless>();
+                    httpClient: new HttpClient(handler))
+                .WithSimpleVectorDb(new SimpleVectorDbConfig()
+                    { Directory = mainDir, StorageType = FileSystemTypes.Disk })
+                .WithSimpleFileStorage(new SimpleFileStorageConfig()
+                    { Directory = mainDir, StorageType = FileSystemTypes.Disk })
+                .Build<MemoryServerless>();
+
             return memory;
         }
     }
