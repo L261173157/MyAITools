@@ -41,7 +41,7 @@ public class ChatService
     public ChatService(IKernelCreat kernel, ILogger<ChatService> logger)
     {
         _kernel = kernel.KernelBuild();
-        // _memoryServerless = kernel.MemoryServerlessBuild();
+         _memoryServerless = kernel.MemoryServerlessBuild();
         //增加内置插件
         _kernel.ImportPluginFromType<TimePlugin>("Time");
         _kernel.ImportPluginFromType<ConversationSummaryPlugin>("ConversationSummary");
@@ -55,7 +55,7 @@ public class ChatService
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
         if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "Generate_Image");
         //增加KM插件
-        //_kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
+         _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
         //增加本地工具插件
         var tools = MauiProgram.Services.GetService(typeof(ToolsPlugin));
         if (tools != null) _kernel.ImportPluginFromObject(tools, "Local_Tools");
