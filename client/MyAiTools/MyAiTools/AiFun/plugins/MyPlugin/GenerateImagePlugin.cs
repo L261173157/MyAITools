@@ -1,5 +1,4 @@
-﻿
-using DocumentFormat.OpenXml.Office2021.DocumentTasks;
+﻿using DocumentFormat.OpenXml.Office2021.DocumentTasks;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
@@ -22,7 +21,7 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
         private readonly ILogger<GenerateImagePlugin> _logger;
         private readonly ITextToImageService _dallE;
 
-        public GenerateImagePlugin(IKernelCreat kernel,ILogger<GenerateImagePlugin> logger)
+        public GenerateImagePlugin(IKernelCreat kernel, ILogger<GenerateImagePlugin> logger)
         {
             _logger = logger;
             var kernel1 = kernel.KernelBuild();

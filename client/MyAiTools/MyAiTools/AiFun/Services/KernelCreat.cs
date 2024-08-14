@@ -17,6 +17,7 @@ using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.DocumentStorage.DevTools;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using Microsoft.KernelMemory.MemoryStorage.DevTools;
+using Microsoft.SemanticKernel.Embeddings;
 
 namespace MyAiTools.AiFun.Services
 {
@@ -44,10 +45,19 @@ namespace MyAiTools.AiFun.Services
                 httpClient: new HttpClient(handler));
             //添加文本转图片模型
             builder.AddOpenAITextToImage(apiKey: openAiKey, httpClient: new HttpClient(handler));
+            //添加嵌入模型
+            builder.AddOpenAITextEmbeddingGeneration(modelId: OpenAiEmbeddingModelId, apiKey: openAiKey,
+                httpClient: new HttpClient(handler));
             //添加依赖注入服务
             builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             //builder.Plugins.AddFromType<TimePlugin>();
             var kernel = builder.Build();
+            //添加优化过滤器
+            //todo 该处过滤器未实现
+            //var memoryStore = new VolatileMemoryStore();
+            //var textEmbeddingGenerationService = kernel.GetRequiredService<ITextEmbeddingGenerationService>();
+            //kernel.PromptRenderFilters.Add(new FewShotPromptOptimizationFilter(memoryStore, textEmbeddingGenerationService));
+            
             return kernel;
         }
 
@@ -88,5 +98,6 @@ namespace MyAiTools.AiFun.Services
 
             return memory;
         }
+
     }
 }

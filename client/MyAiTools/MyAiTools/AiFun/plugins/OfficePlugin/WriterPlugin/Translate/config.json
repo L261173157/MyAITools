@@ -19,7 +19,7 @@
       "description": "Text to translate",
       "default": ""
     },
-      {
+    {
       "name": "language",
       "description": "Language to translate to",
       "default": ""

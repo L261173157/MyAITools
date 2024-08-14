@@ -27,6 +27,5 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
                 yield return text;
             }
         }
-
     }
 }

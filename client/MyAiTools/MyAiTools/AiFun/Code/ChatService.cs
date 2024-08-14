@@ -41,7 +41,7 @@ public class ChatService
     public ChatService(IKernelCreat kernel, ILogger<ChatService> logger)
     {
         _kernel = kernel.KernelBuild();
-         _memoryServerless = kernel.MemoryServerlessBuild();
+        _memoryServerless = kernel.MemoryServerlessBuild();
         //增加内置插件
         _kernel.ImportPluginFromType<TimePlugin>("Time");
         _kernel.ImportPluginFromType<ConversationSummaryPlugin>("ConversationSummary");
@@ -55,7 +55,7 @@ public class ChatService
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
         if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "Generate_Image");
         //增加KM插件
-         _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
+        _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
         //增加本地工具插件
         var tools = MauiProgram.Services.GetService(typeof(ToolsPlugin));
         if (tools != null) _kernel.ImportPluginFromObject(tools, "Local_Tools");
@@ -76,6 +76,7 @@ public class ChatService
             If the user doesn't provide enough information for you to complete a task or if you don't have enough information to complete a task, 
             you can try to get the information from search plugin,
             after that try to get the information from kernel memory plugin,
+            if you call some plugins,you can tell me which plugin you have called.for example: "I have called the plugin named 'plugin name'".
             you will keep asking questions until you have enough information to complete the task.
             """;
         ChatHistory = new ChatHistory(systemMessage);
@@ -182,6 +183,7 @@ public class ChatService
             throw;
         }
     }
+
     /// <summary>
     /// 删除记忆中的文件
     /// </summary>
@@ -193,10 +195,7 @@ public class ChatService
         {
             foreach (var index in await _memoryServerless.ListIndexesAsync())
             {
-                if (index.Name == "default")
-                {
-                    await _memoryServerless.DeleteIndexAsync("default");
-                }
+                await _memoryServerless.DeleteIndexAsync(index.Name);
             }
         }
         else

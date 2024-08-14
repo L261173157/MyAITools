@@ -26,7 +26,7 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
 
         [KernelFunction("write_file")]
         [Description("write a new .txt file on the path")]
-        [return:Description("return is sueccessful")]
+        [return: Description("return is sueccessful")]
         public async Task<string> WriteFile(
             [Description("The text to write in file")]
             string input

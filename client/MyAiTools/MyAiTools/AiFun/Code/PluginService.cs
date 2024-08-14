@@ -11,7 +11,7 @@ using Microsoft.KernelMemory;
 
 namespace MyAiTools.AiFun.Code;
 #pragma warning disable SKEXP0001
-//¹¦ÄÜÒÑ×÷·Ï
+//åŠŸèƒ½å·²ä½œåºŸ
 public class PluginService
 {
     private readonly Kernel _kernel;
@@ -30,7 +30,7 @@ public class PluginService
 
         //_memoryServerless = kernel.MemoryServerlessBuild();
 
-        //Ôö¼ÓRAG²å¼ş
+        //å¢åŠ RAGæ’ä»¶
         var rag = MauiProgram.Services.GetService(typeof(ToolsPlugin));
         if (rag != null) _kernel.ImportPluginFromObject(rag, "ToolsPlugin");
 
@@ -40,7 +40,7 @@ public class PluginService
         //_pluginFunctions = _kernel.ImportPluginFromPromptDirectory(pluginDirectoryPath);
 
 
-        //Ìí¼Ó±¾µØº¯Êı¹¦ÄÜ
+        //æ·»åŠ æœ¬åœ°å‡½æ•°åŠŸèƒ½
         //mathPlugin = _kernel.ImportPluginFromType<MathPlugin>();
     }
 
@@ -63,7 +63,7 @@ public class PluginService
         return result.ToString();
     }
 
-    //¶ÁÈ¡µ±Ç°²å¼şµÄËùÓĞ¹¦ÄÜºÍ²ÎÊı
+    //è¯»å–å½“å‰æ’ä»¶çš„æ‰€æœ‰åŠŸèƒ½å’Œå‚æ•°
     public List<string> GetPluginFunctions()
     {
         var result = new List<string>();
@@ -78,7 +78,7 @@ public class PluginService
         return result;
     }
 
-    //SK¼ÇÒä¹¦ÄÜ
+    //SKè®°å¿†åŠŸèƒ½
     public async Task<string> Remember(string memory, string query)
     {
         try
@@ -88,7 +88,7 @@ public class PluginService
             var response = await _memory.SearchAsync(memoryCollectionName, query).FirstOrDefaultAsync();
             if (response == null)
             {
-                return "Ã»ÓĞÕÒµ½Ïà¹ØĞÅÏ¢";
+                return "æ²¡æœ‰æ‰¾åˆ°ç›¸å…³ä¿¡æ¯";
             }
 
             var result = response?.Relevance.ToString() + "\n" + response?.Metadata.Text;
@@ -102,7 +102,7 @@ public class PluginService
         }
     }
 
-    //KM¼ÇÒä¶ÁÈ¡¹¦ÄÜ
+    //KMè®°å¿†è¯»å–åŠŸèƒ½
     public async Task<string> MemoryReadKm(string query)
     {
         try
@@ -117,7 +117,7 @@ public class PluginService
         }
     }
 
-    //KM¼ÇÒäĞ´Èë¹¦ÄÜ
+    //KMè®°å¿†å†™å…¥åŠŸèƒ½
     public async Task<string> MemoryWriteKm()
     {
         try
@@ -126,7 +126,7 @@ public class PluginService
             if (filePath != null)
                 await _memoryServerless.ImportDocumentAsync(filePath.FullPath, documentId: filePath.FileName);
 
-            return "±£´æ³É¹¦";
+            return "ä¿å­˜æˆåŠŸ";
         }
         catch (Exception e)
         {
@@ -135,4 +135,3 @@ public class PluginService
         }
     }
 }
-

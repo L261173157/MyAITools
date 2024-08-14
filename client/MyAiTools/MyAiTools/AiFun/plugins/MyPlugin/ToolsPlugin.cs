@@ -75,6 +75,7 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
                             {
                                 result.Append(item);
                             }
+
                             _logger.LogInformation("ReadPdfFile started");
                             return result.ToString();
                         });
@@ -120,7 +121,7 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
             var fileName = $"export_{time}.txt";
             var result = await FolderPicker.Default.PickAsync();
             _logger.LogInformation("SaveFilePath started");
-            return result.IsSuccessful ? result.Folder.Path + fileName : "Save File Failed";
+            return result.IsSuccessful ? result.Folder.Path+"\\" + fileName : "Save File Failed";
         }
     }
 }

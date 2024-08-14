@@ -12,6 +12,7 @@ namespace MyAiTools;
 public static class MauiProgram
 {
     public static IServiceProvider Services;
+
     [Experimental("SKEXP0001")]
     public static MauiApp CreateMauiApp()
     {
@@ -22,11 +23,11 @@ public static class MauiProgram
         });
         builder.UseMauiCommunityToolkit();
         builder.Services.AddMauiBlazorWebView();
-        
-        
+
+
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
-        
+
         builder.Services.AddTransient<IKernelCreat, KernelCreat>();
         builder.Services.AddTransient<IGetBaseUrl, GetBaseUrlZZZ>();
         builder.Services.AddSingleton<ChatService>();

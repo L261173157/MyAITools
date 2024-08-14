@@ -42,6 +42,7 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
             StringBuilder sbFileText = new StringBuilder();
 
             #region 打开文档
+
             XWPFDocument document = null;
             try
             {
@@ -52,11 +53,13 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
             }
             catch (Exception e)
             {
-               Console.Write(string.Format("文件{0}打开失败，错误：{1}", new string[] { fileName, e.ToString() }));
+                Console.Write(string.Format("文件{0}打开失败，错误：{1}", new string[] { fileName, e.ToString() }));
             }
+
             #endregion
 
             #region 页眉、页脚
+
             //页眉
             if (CaptureWordHeader == "true")
             {
@@ -65,8 +68,10 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
                 {
                     sbFileText.AppendLine(string.Format("{0}", new string[] { xwpfHeader.Text }));
                 }
+
                 sbFileText.AppendLine("Capture Header End");
             }
+
             //页脚
             if (CaptureWordFooter == "true")
             {
@@ -75,11 +80,14 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
                 {
                     sbFileText.AppendLine(string.Format("{0}", new string[] { xwpfFooter.Text }));
                 }
+
                 sbFileText.AppendLine("Capture Footer End");
             }
+
             #endregion
 
             #region 表格
+
             if (CaptureWordTable == "true")
             {
                 sbFileText.AppendLine("Capture Table Begin");
@@ -97,13 +105,17 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
 
                         sbFileText.Append(WordTableRowSeparator);
                     }
+
                     sbFileText.Append(WordTableSeparator);
                 }
+
                 sbFileText.AppendLine("Capture Table End");
             }
+
             #endregion
 
             #region 图片
+
             if (CaptureWordImage == "true")
             {
                 sbFileText.AppendLine("Capture Image Begin");
@@ -113,18 +125,22 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
                     string picFileName = pictureData.FileName;
                     byte[] picFileContent = pictureData.Data;
                     //
-                    string picTempName = string.Format(CaptureWordImageFileName, new string[] { Guid.NewGuid().ToString() + "_" + picFileName + "." + picExtName });
+                    string picTempName = string.Format(CaptureWordImageFileName,
+                        new string[] { Guid.NewGuid().ToString() + "_" + picFileName + "." + picExtName });
                     //
                     using (FileStream fs = new FileStream(picTempName, FileMode.Create, FileAccess.Write))
                     {
                         fs.Write(picFileContent, 0, picFileContent.Length);
                         fs.Close();
                     }
+
                     //
                     sbFileText.AppendLine(picTempName);
                 }
+
                 sbFileText.AppendLine("Capture Image End");
             }
+
             #endregion
 
             //正文段落
@@ -132,8 +148,8 @@ namespace MyAiTools.AiFun.plugins.MyPlugin
             foreach (XWPFParagraph paragraph in document.Paragraphs)
             {
                 sbFileText.AppendLine(paragraph.ParagraphText);
-
             }
+
             sbFileText.AppendLine("Capture Paragraph End");
             //
 

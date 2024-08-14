@@ -34,8 +34,8 @@ namespace MyAiTools.AiFun.Services
             {
                 throw new Exception("未找到智增增的API Key");
             }
+
             return apiKey;
-            
         }
     }
 }
