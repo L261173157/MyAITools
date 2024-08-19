@@ -1,6 +1,7 @@
 {
   "schema": 1,
-  "description": "Check to see if a given list of entities is grounded in a reference context. Any of the items which are not supported by the reference context will be returned as a bulleted list.",
+  "description":
+    "Check to see if a given list of entities is grounded in a reference context. Any of the items which are not supported by the reference context will be returned as a bulleted list.",
   "execution_settings": {
     "default": {
       "max_tokens": 2048,
@@ -19,7 +20,8 @@
     },
     {
       "name": "reference_context",
-      "description": "The reference context to be used to ground the entities. Only those missing from the reference_context will be returned",
+      "description":
+        "The reference context to be used to ground the entities. Only those missing from the reference_context will be returned",
       "default": "",
       "is_required": true
     }

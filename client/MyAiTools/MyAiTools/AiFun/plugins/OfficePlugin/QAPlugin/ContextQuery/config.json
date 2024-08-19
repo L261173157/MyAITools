@@ -1,6 +1,7 @@
 {
   "schema": 1,
-  "description": "Ask the AI for answers contextually relevant to you based on your name, address and pertinent information retrieved from your personal secondary memory",
+  "description":
+    "Ask the AI for answers contextually relevant to you based on your name, address and pertinent information retrieved from your personal secondary memory",
   "execution_settings": {
     "default": {
       "max_tokens": 256,

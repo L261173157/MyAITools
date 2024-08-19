@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using MyAiTools.AiFun.Code;
-using MyAiTools.AiFun.Services;
-using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Storage;
-using CommunityToolkit.Maui;
 using MyAiTools.AiFun.plugins.MyPlugin;
+using MyAiTools.AiFun.Services;
 
 namespace MyAiTools;
 
@@ -29,7 +27,7 @@ public static class MauiProgram
         builder.Logging.AddConsole();
 
         builder.Services.AddTransient<IKernelCreat, KernelCreat>();
-        builder.Services.AddTransient<IGetBaseUrl, GetBaseUrlZZZ>();
+        builder.Services.AddTransient<IGetBaseUrl, GetBaseUrl>();
         builder.Services.AddSingleton<ChatService>();
         builder.Services.AddSingleton<PluginService>();
         builder.Services.AddTransient<TestPlugin>();

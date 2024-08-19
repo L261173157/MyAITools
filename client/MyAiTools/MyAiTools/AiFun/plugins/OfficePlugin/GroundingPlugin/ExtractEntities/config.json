@@ -1,6 +1,7 @@
 {
   "schema": 1,
-  "description": "Extract entities related to a specified topic from the supplied input text. Returns the entities and the source text",
+  "description":
+    "Extract entities related to a specified topic from the supplied input text. Returns the entities and the source text",
   "execution_settings": {
     "default": {
       "max_tokens": 256,

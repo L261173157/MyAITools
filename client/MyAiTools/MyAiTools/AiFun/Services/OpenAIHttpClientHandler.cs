@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyAiTools.AiFun.Services;
+﻿namespace MyAiTools.AiFun.Services;
 
 public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
 {
+    private readonly string _Host = baseUrl.GetHost();
+
     //拦截请求地址
-    private string _Scheme = baseUrl.GetScheme();
-    private string _Host = baseUrl.GetHost();
+    private readonly string _Scheme = baseUrl.GetScheme();
     //private string _Path;
 
     //_Path = baseUrl.GetPath();
@@ -21,7 +16,7 @@ public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
         //拦截地址聊天服务地址
         if (request.RequestUri.LocalPath == "/v1/chat/completions")
         {
-            UriBuilder uriBuilder = new UriBuilder(request.RequestUri)
+            var uriBuilder = new UriBuilder(request.RequestUri)
             {
                 Scheme = _Scheme,
                 Host = _Host,
@@ -32,7 +27,7 @@ public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
         //拦截地址图片生成服务地址
         else if (request.RequestUri.LocalPath == "/v1/images/generations")
         {
-            UriBuilder uriBuilder = new UriBuilder(request.RequestUri)
+            var uriBuilder = new UriBuilder(request.RequestUri)
             {
                 Scheme = _Scheme,
                 Host = _Host,
@@ -43,7 +38,7 @@ public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
         //拦截地址文本嵌入服务地址
         else if (request.RequestUri.LocalPath == "/v1/embeddings")
         {
-            UriBuilder uriBuilder = new UriBuilder(request.RequestUri)
+            var uriBuilder = new UriBuilder(request.RequestUri)
             {
                 Scheme = _Scheme,
                 Host = _Host,

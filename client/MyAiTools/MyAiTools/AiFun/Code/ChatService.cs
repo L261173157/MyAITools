@@ -1,23 +1,15 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
-using System.Text.Json;
+using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.KernelMemory;
-using MyAiTools.AiFun.plugins.MyPlugin;
-using Newtonsoft.Json;
-
-namespace MyAiTools.AiFun.Code;
-
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.TextToImage;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
-using MyAiTools.AiFun.Services;
 using Microsoft.SemanticKernel.Plugins.Core;
-using Microsoft.SemanticKernel.Memory;
-using System;
-using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Net;
+using MyAiTools.AiFun.plugins.MyPlugin;
+using MyAiTools.AiFun.Services;
+
+namespace MyAiTools.AiFun.Code;
 
 #pragma warning disable SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning disable SKEXP0050 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
@@ -25,18 +17,12 @@ public class ChatService
 {
     private readonly IChatCompletionService _chatGpt;
     private readonly Kernel _kernel;
+
+    private readonly ILogger<ChatService> _logger;
     private readonly MemoryServerless _memoryServerless;
     private readonly OpenAIPromptExecutionSettings _openAiPromptExecutionSettings;
 
-    private readonly ILogger<ChatService> _logger;
-
     public ChatHistory ChatHistory;
-
-    //现聊天记录变化时触发
-    public event Action<string>? ChatHistoryChanged;
-
-    //开始新回复时触发
-    public event Action? BeginNewReply;
 
     public ChatService(IKernelCreat kernel, ILogger<ChatService> logger)
     {
@@ -65,7 +51,7 @@ public class ChatService
 
         _chatGpt = _kernel.GetRequiredService<IChatCompletionService>();
         //设置调用行为，自动调用内核函数
-        _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings()
+        _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings
             { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
 
 
@@ -85,8 +71,14 @@ public class ChatService
         _logger = logger;
     }
 
+    //现聊天记录变化时触发
+    public event Action<string>? ChatHistoryChanged;
+
+    //开始新回复时触发
+    public event Action? BeginNewReply;
+
     /// <summary>
-    /// 聊天功能（聊天、调用函数、生成图片、调取记忆）
+    ///     聊天功能（聊天、调用函数、生成图片、调取记忆）
     /// </summary>
     /// <param name="ask">用户提问</param>
     /// <returns></returns>
@@ -113,7 +105,7 @@ public class ChatService
 
                 //流式调用模型
                 var assistantReply = _chatGpt.GetStreamingChatMessageContentsAsync(ChatHistory,
-                    executionSettings: _openAiPromptExecutionSettings, kernel: _kernel);
+                    _openAiPromptExecutionSettings, _kernel);
                 var fullMessage = string.Empty;
                 BeginNewReply?.Invoke();
                 await foreach (var message in assistantReply)
@@ -121,10 +113,7 @@ public class ChatService
                     if (message.Content == null) continue;
                     ChatHistoryChanged?.Invoke(message.Content);
                     Console.Write(message.Content);
-                    if (message.Content is { Length: > 0 })
-                    {
-                        fullMessage += message.Content;
-                    }
+                    if (message.Content is { Length: > 0 }) fullMessage += message.Content;
                 }
 
                 ChatHistory.AddAssistantMessage(fullMessage);
@@ -150,7 +139,7 @@ public class ChatService
     }
 
     /// <summary>
-    /// 清空聊天记录
+    ///     清空聊天记录
     /// </summary>
     public void ClearChatHistory()
     {
@@ -158,7 +147,7 @@ public class ChatService
     }
 
     /// <summary>
-    /// 存储文件到记忆
+    ///     存储文件到记忆
     /// </summary>
     /// <returns></returns>
     public async Task MemorySaveFile()
@@ -172,9 +161,7 @@ public class ChatService
                 var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(filePath?.FileName));
                 var documentId = BitConverter.ToString(hash).ToLower();
                 if (!await _memoryServerless.IsDocumentReadyAsync(documentId))
-                {
                     await _memoryServerless.ImportDocumentAsync(filePath.FullPath, documentId);
-                }
             }
         }
         catch (Exception e)
@@ -185,7 +172,7 @@ public class ChatService
     }
 
     /// <summary>
-    /// 删除记忆中的文件
+    ///     删除记忆中的文件
     /// </summary>
     /// <param name="documentId"></param>
     /// <returns></returns>
@@ -194,16 +181,12 @@ public class ChatService
         if (documentId == null)
         {
             foreach (var index in await _memoryServerless.ListIndexesAsync())
-            {
                 await _memoryServerless.DeleteIndexAsync(index.Name);
-            }
         }
         else
         {
             if (await _memoryServerless.IsDocumentReadyAsync(documentId))
-            {
                 await _memoryServerless.DeleteDocumentAsync(documentId);
-            }
         }
     }
 }

@@ -1,40 +1,24 @@
-﻿html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
+﻿html, body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 
-a, .btn-link {
-    color: #006bb7;
-}
+a, .btn-link { color: #006bb7; }
 
 .btn-primary {
-    color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
+    color: #fff;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus { box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb; }
 
-.content {
-    padding-top: 1.1rem;
-}
+.content { padding-top: 1.1rem; }
 
-h1:focus {
-    outline: none;
-}
+h1:focus { outline: none; }
 
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
-}
+.valid.modified:not([type=checkbox]) { outline: 1px solid #26b050; }
 
-.invalid {
-    outline: 1px solid #e50000;
-}
+.invalid { outline: 1px solid #e50000; }
 
-.validation-message {
-    color: #e50000;
-}
+.validation-message { color: #e50000; }
 
 #blazor-error-ui {
     background: lightyellow;
@@ -57,131 +41,131 @@ h1:focus {
 
 .blazor-error-boundary {
     background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
-    padding: 1rem 1rem 1rem 3.7rem;
     color: white;
+    padding: 1rem 1rem 1rem 3.7rem;
 }
 
-.blazor-error-boundary::after {
-    content: "An error has occurred."
-}
+.blazor-error-boundary::after { content: "An error has occurred." }
 
-.status-bar-safe-area {
-    display: none;
-}
+.status-bar-safe-area { display: none; }
 
 /* 容器样式 */
+
 .translator-container {
-    width: 100%; /* 使容器宽度自动适应父元素宽度 */
-    margin: auto;
-    padding: 25px; /* 增加内边距 */
+    background-color: #fafafa; /* 更淡的背景颜色 */
     border: 1px solid #e0e0e0; /* 更轻的边框颜色 */
     border-radius: 8px;
-    background-color: #fafafa; /* 更淡的背景颜色 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    padding: 25px; /* 增加内边距 */
+    width: 100%; /* 使容器宽度自动适应父元素宽度 */
 }
 
 .chat-container {
-    width: 100%; /* 使容器宽度自动适应父元素宽度 */
-    /*max-width: 700px; !* 设置最大宽度限制 *!*/
-    margin: 20px auto; /* 上下边距为20px，左右自动（保持居中） */
-    padding: 20px;
-    height: 500px; /* 固定高度 */
+    background-color: #fafafa; /* 背景颜色 */
     border: 1px solid #cfd8dc; /* 边框颜色 */
     border-radius: 10px;
-    background-color: #fafafa; /* 背景颜色 */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    height: 500px; /* 固定高度 */
+    /*max-width: 700px; !* 设置最大宽度限制 *!*/
+    margin: 20px auto; /* 上下边距为20px，左右自动（保持居中） */
     overflow-y: auto; /* 超出内容可滚动 */
+    padding: 20px;
+    width: 100%; /* 使容器宽度自动适应父元素宽度 */
 }
 
 /* 聊天历史对话框样式 */
+
 .chat-container {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
     height: 70vh; /* 占据视口高度的 80%，可以根据需要调整 */
     overflow-y: auto; /* 当内容超出容器高度时显示滚动条 */
+    padding: 10px;
 }
 
 .message {
-    padding: 10px 14px; /* 调整内边距 */
     border-radius: 20px; /* 更圆润的边角 */
-    margin: 10px 0; /* 增加间距 */
-    font-size: 16px; /* 增大字体 */
-    max-width: 70%;
-    word-wrap: break-word;
     display: inline-block;
+    font-size: 16px; /* 增大字体 */
+    margin: 10px 0; /* 增加间距 */
+    max-width: 70%;
+    padding: 10px 14px; /* 调整内边距 */
+    word-wrap: break-word;
 }
 
 /* 用户消息样式 */
+
 .user-message {
     background-color: #007BFF; /* 蓝色背景 */
+    border-bottom-right-radius: 0;
     color: #ffffff; /* 白色文字 */
     margin-left: auto;
-    border-bottom-right-radius: 0;
     text-align: left; /* 内容左对齐 */
 }
 
 /* 系统消息样式 */
+
 .system-message {
     background-color: #eeeeee; /* 更轻的灰色背景 */
+    border-bottom-left-radius: 0;
     color: #333333; /* 深色文字 */
     margin-right: auto;
-    border-bottom-left-radius: 0;
     text-align: left; /* 内容左对齐 */
 }
 
 .input-group {
+    border-top: 1px solid #ccc;
     display: flex;
     margin-top: 10px;
-    border-top: 1px solid #ccc;
     padding-top: 10px;
 }
 
-.input-group input {
-    flex: 1;
-}
+.input-group input { flex: 1; }
 
-.input-group button {
-    margin-left: 10px;
-}
+.input-group button { margin-left: 10px; }
 
 
 /* 输入和输出组样式 */
+
 .input-group, .output-group {
     margin-bottom: 25px; /* 增加间距 */
 }
 
 /* 文本区域和下拉选择框样式 */
+
 .input-group textarea, .output-group textarea, .input-group select {
-    width: 100%;
-    padding: 12px; /* 增加填充 */
+    background-color: #ffffff; /* 纯白背景色 */
     border: 1px solid #e0e0e0; /* 轻的边框颜色 */
     border-radius: 4px;
-    background-color: #ffffff; /* 纯白背景色 */
     margin-bottom: 15px; /* 统一间距 */
+    padding: 12px; /* 增加填充 */
+    width: 100%;
 }
 
 /* 消息提示样式 */
+
 .message-tip {
-    margin-top: 10px;
-    padding: 10px;
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 4px;
     color: #495057;
+    margin-top: 10px;
+    padding: 10px;
 }
 
 /* 按钮样式 */
+
 .buttons button {
-    padding: 10px 20px;
-    margin: 0 12px; /* 增加按钮间距 */
+    background-color: #4CAF50; /* 清新的按钮颜色 */
     border-radius: 4px;
+    color: white;
     cursor: pointer;
     font-size: 16px;
-    background-color: #4CAF50; /* 清新的按钮颜色 */
-    color: white;
+    margin: 0 12px; /* 增加按钮间距 */
+    padding: 10px 20px;
 }
 
 .buttons button:hover {
@@ -191,16 +175,14 @@ h1:focus {
 
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
+        background-color: #f7f7f7;
         display: flex;
+        height: env(safe-area-inset-top);
         position: sticky;
         top: 0;
-        height: env(safe-area-inset-top);
-        background-color: #f7f7f7;
         width: 100%;
         z-index: 1;
     }
 
-    .flex-column, .navbar-brand {
-        padding-left: env(safe-area-inset-left);
-    }
+    .flex-column, .navbar-brand { padding-left: env(safe-area-inset-left); }
 }

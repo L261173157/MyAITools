@@ -1,9 +1,9 @@
 @page "/chat"
 @using System.Text
+@using System.Text.Encodings.Web
 @using System.Text.Json
 @using CommunityToolkit.Maui.Storage
 @using Markdig
-@using Microsoft.SemanticKernel
 @using MyAiTools.AiFun.Code
 @inject ChatService ChatService
 
@@ -46,7 +46,7 @@
     }
 
     /// <summary>
-    /// 开始一个新的回复
+    ///     开始一个新的回复
     /// </summary>
     private void BeginNewReply()
     {
@@ -55,7 +55,7 @@
     }
 
     /// <summary>
-    /// 刷新消息
+    ///     刷新消息
     /// </summary>
     private void ReadMessage(string streamMessage)
     {
@@ -69,7 +69,7 @@
     }
 
     /// <summary>
-    /// 向后台发送消息
+    ///     向后台发送消息
     /// </summary>
     /// <returns></returns>
     private async Task SendMessage()
@@ -86,7 +86,7 @@
     }
 
     /// <summary>
-    /// 清空消息
+    ///     清空消息
     /// </summary>
     private void ClearMessage()
     {
@@ -95,7 +95,7 @@
     }
 
     /// <summary>
-    /// 快捷键处理
+    ///     快捷键处理
     /// </summary>
     /// <param name="e"></param>
     /// <returns></returns>
@@ -108,7 +108,7 @@
     }
 
     /// <summary>
-    /// 格式化消息，用于图片显示
+    ///     格式化消息，用于图片显示
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
@@ -120,14 +120,14 @@
     }
 
     /// <summary>
-    /// 保存对话
+    ///     保存对话
     /// </summary>
     /// <returns></returns>
     private async Task SaveConversation()
     {
         var options = new JsonSerializerOptions
         {
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true // 美化输出，使其更具可读性（可选）
         };
         var json = JsonSerializer.Serialize(_messages, options);

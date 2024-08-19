@@ -1,13 +1,8 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using MyAiTools.AiFun.plugins.MyPlugin;
 using MyAiTools.AiFun.Services;
-using Microsoft.SemanticKernel.Plugins.Core;
-using System.Linq;
-using Microsoft.KernelMemory;
-
 
 namespace MyAiTools.AiFun.Code;
 #pragma warning disable SKEXP0001
@@ -46,12 +41,13 @@ public class PluginService
 
     public async Task<string> TranslateText(string text, string target)
     {
-        var arguments = new KernelArguments() { ["input"] = text, ["target"] = target };
+        var arguments = new KernelArguments { ["input"] = text, ["target"] = target };
         object? result;
         try
         {
             //result = await _kernel.InvokeAsync(pluginFunctions["WriteFile"], arguments);
-            result = await _kernel.InvokeAsync(_pluginFunctions["Add"], new() { { "value", text }, { "amount", 2 } });
+            result = await _kernel.InvokeAsync(_pluginFunctions["Add"],
+                new KernelArguments { { "value", text }, { "amount", 2 } });
             //result= await _kernel.InvokeAsync(mathPlugin["Add"], new() { { "number1", 12 }, { "number2", 13 } });
         }
         catch (Exception e)
@@ -68,12 +64,8 @@ public class PluginService
     {
         var result = new List<string>();
         foreach (var function in _pluginFunctions)
-        {
-            foreach (var parameter in function.Metadata.Parameters)
-            {
-                result.Add($"{function.Name}({parameter.Name})");
-            }
-        }
+        foreach (var parameter in function.Metadata.Parameters)
+            result.Add($"{function.Name}({parameter.Name})");
 
         return result;
     }
@@ -86,12 +78,9 @@ public class PluginService
             const string memoryCollectionName = "MyMemory";
             await _memory.SaveInformationAsync(memoryCollectionName, id: "info1", text: memory);
             var response = await _memory.SearchAsync(memoryCollectionName, query).FirstOrDefaultAsync();
-            if (response == null)
-            {
-                return "没有找到相关信息";
-            }
+            if (response == null) return "没有找到相关信息";
 
-            var result = response?.Relevance.ToString() + "\n" + response?.Metadata.Text;
+            var result = response?.Relevance + "\n" + response?.Metadata.Text;
             Console.WriteLine(result);
             return result;
         }
@@ -124,7 +113,7 @@ public class PluginService
         {
             var filePath = await FilePicker.Default.PickAsync();
             if (filePath != null)
-                await _memoryServerless.ImportDocumentAsync(filePath.FullPath, documentId: filePath.FileName);
+                await _memoryServerless.ImportDocumentAsync(filePath.FullPath, filePath.FileName);
 
             return "保存成功";
         }
