@@ -1,6 +1,10 @@
-﻿html, body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+﻿html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
 
-a, .btn-link { color: #006bb7; }
+a, .btn-link {
+    color: #006bb7;
+}
 
 .btn-primary {
     background-color: #1b6ec2;
@@ -8,17 +12,29 @@ a, .btn-link { color: #006bb7; }
     color: #fff;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus { box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb; }
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
 
-.content { padding-top: 1.1rem; }
+.content {
+    padding-top: 1.1rem;
+}
 
-h1:focus { outline: none; }
+h1:focus {
+    outline: none;
+}
 
-.valid.modified:not([type=checkbox]) { outline: 1px solid #26b050; }
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
 
-.invalid { outline: 1px solid #e50000; }
+.invalid {
+    outline: 1px solid #e50000;
+}
 
-.validation-message { color: #e50000; }
+.validation-message {
+    color: #e50000;
+}
 
 #blazor-error-ui {
     background: lightyellow;
@@ -45,9 +61,15 @@ h1:focus { outline: none; }
     padding: 1rem 1rem 1rem 3.7rem;
 }
 
-.blazor-error-boundary::after { content: "An error has occurred." }
+.blazor-error-boundary::after {
+    content: "An error has occurred."
+}
 
-.status-bar-safe-area { display: none; }
+.status-bar-safe-area {
+    display: none;
+}
+
+
 
 /* 容器样式 */
 
@@ -62,60 +84,50 @@ h1:focus { outline: none; }
 }
 
 .chat-container {
-    background-color: #fafafa; /* 背景颜色 */
-    border: 1px solid #cfd8dc; /* 边框颜色 */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-    height: 500px; /* 固定高度 */
-    /*max-width: 700px; !* 设置最大宽度限制 *!*/
-    margin: 20px auto; /* 上下边距为20px，左右自动（保持居中） */
-    overflow-y: auto; /* 超出内容可滚动 */
-    padding: 20px;
-    width: 100%; /* 使容器宽度自动适应父元素宽度 */
-}
-
-/* 聊天历史对话框样式 */
-
-.chat-container {
-    border: 1px solid #ccc;
-    border-radius: 10px;
+    background-color: #fafafa; /* 背景颜色设置为淡灰色 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    /* max-width: 700px; 设置最大宽度限制，已注释 */
+    margin: 20px auto; /* 上下边距为20px，左右自动，保持居中 */
+    width: 100%; /* 自动适应父元素宽度 */
+    border: 1px solid #ccc; /* 边框颜色和样式 */
+    border-radius: 10px; /* 圆角边框 */
     display: flex;
-    flex-direction: column;
-    height: 70vh; /* 占据视口高度的 80%，可以根据需要调整 */
+    flex-direction: column; /* 垂直排列容器内的元素 */
+    height: 70vh; /* 占据视口高度的70% */
     overflow-y: auto; /* 当内容超出容器高度时显示滚动条 */
-    padding: 10px;
+    padding: 10px; /* 内边距设置为10px */
 }
-
+/* 消息样式 */
 .message {
     border-radius: 20px; /* 更圆润的边角 */
-    display: inline-block;
+    display: inline-block; /* 使消息块内联 */
     font-size: 16px; /* 增大字体 */
-    margin: 10px 0; /* 增加间距 */
-    max-width: 70%;
-    padding: 10px 14px; /* 调整内边距 */
-    word-wrap: break-word;
+    margin: 10px 0; /* 上下间距为10px */
+    max-width: 60%; /* 限制消息的最大宽度为60% */ /* 可以根据需求调节*/
+    padding: 10px 14px; /* 内边距调整 */
+    word-wrap: break-word; /* 允许单词换行，以防止溢出 */
 }
 
 /* 用户消息样式 */
-
 .user-message {
-    background-color: #007BFF; /* 蓝色背景 */
-    border-bottom-right-radius: 0;
-    color: #ffffff; /* 白色文字 */
-    margin-left: auto;
+    background-color: #007BFF; /* 用户消息背景色为蓝色 */
+    border-bottom-right-radius: 0; /* 用户消息右下角为直角 */
+    color: #ffffff; /* 用户消息文字颜色为白色 */
+    margin-left: auto; /* 用户消息靠右对齐 */
     text-align: left; /* 内容左对齐 */
 }
 
 /* 系统消息样式 */
-
 .system-message {
-    background-color: #eeeeee; /* 更轻的灰色背景 */
-    border-bottom-left-radius: 0;
-    color: #333333; /* 深色文字 */
-    margin-right: auto;
+    background-color: #eeeeee; /* 系统消息背景色为浅灰色 */
+    border-bottom-left-radius: 0; /* 系统消息左下角为直角 */
+    color: #333333; /* 系统消息文字颜色为深色 */
+    margin-right: auto; /* 系统消息靠左对齐 */
     text-align: left; /* 内容左对齐 */
 }
 
+
+/* 聊天输入组样式 */
 .input-group {
     border-top: 1px solid #ccc;
     display: flex;
@@ -123,53 +135,39 @@ h1:focus { outline: none; }
     padding-top: 10px;
 }
 
-.input-group input { flex: 1; }
-
-.input-group button { margin-left: 10px; }
-
-
-/* 输入和输出组样式 */
-
-.input-group, .output-group {
-    margin-bottom: 25px; /* 增加间距 */
-}
-
-/* 文本区域和下拉选择框样式 */
-
-.input-group textarea, .output-group textarea, .input-group select {
-    background-color: #ffffff; /* 纯白背景色 */
-    border: 1px solid #e0e0e0; /* 轻的边框颜色 */
-    border-radius: 4px;
-    margin-bottom: 15px; /* 统一间距 */
-    padding: 12px; /* 增加填充 */
+/* 聊天输入框样式 */
+.form-control {
     width: 100%;
-}
-
-/* 消息提示样式 */
-
-.message-tip {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    color: #495057;
-    margin-top: 10px;
     padding: 10px;
-}
-
-/* 按钮样式 */
-
-.buttons button {
-    background-color: #4CAF50; /* 清新的按钮颜色 */
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none; /* 禁用调整大小 */
     font-size: 16px;
-    margin: 0 12px; /* 增加按钮间距 */
-    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.buttons button:hover {
-    background-color: #45a049; /* 深一点的按钮悬停颜色 */
+.form-control:focus {
+    border-color: #007bff; /* 聚焦时的边框颜色 */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* 聚焦时的阴影效果 */
+}
+.button-primary {
+    background-color: #007bff; /* 主色 */
+    border: none;              /* 去掉边框 */
+    color: white;              /* 字体颜色 */
+    padding: 10px 20px;       /* 内边距 */
+    text-align: center;        /* 文本居中 */
+    text-decoration: none;     /* 去掉下划线 */
+    display: inline-block;     /* 让按钮在一行显示 */
+    font-size: 16px;          /* 字体大小 */
+    margin: 5px;              /* 按钮之间的间距 */
+    cursor: pointer;           /* 鼠标悬停时显示为手形 */
+    border-radius: 5px;       /* 圆角 */
+    transition: background 0.3s ease; /* 背景过渡 */
+}
+
+.button-primary:hover {
+    background-color: #0056b3; /* 悬停时的背景色 */
 }
 
 
@@ -184,5 +182,7 @@ h1:focus { outline: none; }
         z-index: 1;
     }
 
-    .flex-column, .navbar-brand { padding-left: env(safe-area-inset-left); }
+    .flex-column, .navbar-brand {
+        padding-left: env(safe-area-inset-left);
+    }
 }

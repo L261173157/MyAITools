@@ -1,7 +1,6 @@
 {
   "schema": 1,
-  "description":
-    "Turns natural language into Python command line scripts. Reads variables from args, operates on stdin, out",
+  "description": "Turns natural language into Python command line scripts. Reads variables from args, operates on stdin, out",
   "execution_settings": {
     "default": {
       "max_tokens": 256,

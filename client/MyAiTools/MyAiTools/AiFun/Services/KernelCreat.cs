@@ -42,7 +42,7 @@ public class KernelCreat : IKernelCreat
         //builder.Plugins.AddFromType<TimePlugin>();
         var kernel = builder.Build();
         //添加优化过滤器
-        //todo 该处过滤器未实现
+        //todo 该处过滤器未实现简化prompt的功能
         //var memoryStore = new VolatileMemoryStore();
         //var textEmbeddingGenerationService = kernel.GetRequiredService<ITextEmbeddingGenerationService>();
         //kernel.PromptRenderFilters.Add(new FewShotPromptOptimizationFilter(memoryStore, textEmbeddingGenerationService));

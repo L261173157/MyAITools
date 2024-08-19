@@ -23,7 +23,7 @@
 </div>
 
 <div class="input-group">
-    <input @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."/>
+    <textarea @bind="_userInput" @onkeydown="HandleKeyDown" class="form-control" placeholder="输入你的消息..."></textarea>   
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
     <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
     <button class="btn btn-primary" @onclick="SaveFile">存储记忆</button>
@@ -99,9 +99,10 @@
     /// </summary>
     /// <param name="e"></param>
     /// <returns></returns>
-    private async Task HandleKeyUp(KeyboardEventArgs e)
+    private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        
+        if (e is { Key: "Enter", CtrlKey: true })
         {
             await SendMessage();
         }
@@ -115,7 +116,6 @@
     private string FormatMessage(string message)
     {
         var mdMessage = Markdown.ToHtml(message);
-        //todo: 临时屏蔽掉图片显示功能，改为markdown格式显示
         return mdMessage;
     }
 

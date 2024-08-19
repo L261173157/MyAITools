@@ -1,7 +1,6 @@
 {
   "schema": 1,
-  "description":
-    "Given a request to generate an acronym from a string, generate an acronym and provide the acronym explanation.",
+  "description": "Given a request to generate an acronym from a string, generate an acronym and provide the acronym explanation.",
   "execution_settings": {
     "default": {
       "max_tokens": 256,
