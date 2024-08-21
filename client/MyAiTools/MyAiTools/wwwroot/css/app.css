@@ -70,7 +70,6 @@ h1:focus {
 }
 
 
-
 /* 容器样式 */
 
 .translator-container {
@@ -97,6 +96,7 @@ h1:focus {
     overflow-y: auto; /* 当内容超出容器高度时显示滚动条 */
     padding: 10px; /* 内边距设置为10px */
 }
+
 /* 消息样式 */
 .message {
     border-radius: 20px; /* 更圆润的边角 */
@@ -151,18 +151,19 @@ h1:focus {
     border-color: #007bff; /* 聚焦时的边框颜色 */
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* 聚焦时的阴影效果 */
 }
+
 .button-primary {
     background-color: #007bff; /* 主色 */
-    border: none;              /* 去掉边框 */
-    color: white;              /* 字体颜色 */
-    padding: 10px 20px;       /* 内边距 */
-    text-align: center;        /* 文本居中 */
-    text-decoration: none;     /* 去掉下划线 */
-    display: inline-block;     /* 让按钮在一行显示 */
-    font-size: 16px;          /* 字体大小 */
-    margin: 5px;              /* 按钮之间的间距 */
-    cursor: pointer;           /* 鼠标悬停时显示为手形 */
-    border-radius: 5px;       /* 圆角 */
+    border: none; /* 去掉边框 */
+    color: white; /* 字体颜色 */
+    padding: 10px 20px; /* 内边距 */
+    text-align: center; /* 文本居中 */
+    text-decoration: none; /* 去掉下划线 */
+    display: inline-block; /* 让按钮在一行显示 */
+    font-size: 16px; /* 字体大小 */
+    margin: 5px; /* 按钮之间的间距 */
+    cursor: pointer; /* 鼠标悬停时显示为手形 */
+    border-radius: 5px; /* 圆角 */
     transition: background 0.3s ease; /* 背景过渡 */
 }
 

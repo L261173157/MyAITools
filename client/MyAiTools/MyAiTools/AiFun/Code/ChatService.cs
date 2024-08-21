@@ -78,7 +78,7 @@ public class ChatService
     public event Action? BeginNewReply;
 
     /// <summary>
-    ///     聊天功能（聊天、调用函数、生成图片、调取记忆）
+    /// 聊天功能（聊天、调用函数、生成图片、调取记忆）
     /// </summary>
     /// <param name="ask">用户提问</param>
     /// <returns></returns>
@@ -139,7 +139,7 @@ public class ChatService
     }
 
     /// <summary>
-    ///     清空聊天记录
+    /// 清空聊天记录
     /// </summary>
     public void ClearChatHistory()
     {
@@ -147,7 +147,7 @@ public class ChatService
     }
 
     /// <summary>
-    ///     存储文件到记忆
+    /// 存储文件到记忆
     /// </summary>
     /// <returns></returns>
     public async Task MemorySaveFile()
@@ -156,7 +156,7 @@ public class ChatService
         {
             var filePath = await FilePicker.Default.PickAsync();
             using var md5 = MD5.Create();
-            if (filePath?.FileName != null)
+            if (filePath?.FileName is not null)
             {
                 var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(filePath?.FileName));
                 var documentId = BitConverter.ToString(hash).ToLower();
@@ -172,7 +172,7 @@ public class ChatService
     }
 
     /// <summary>
-    ///     删除记忆中的文件
+    /// 删除记忆中的文件
     /// </summary>
     /// <param name="documentId"></param>
     /// <returns></returns>

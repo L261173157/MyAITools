@@ -38,12 +38,14 @@
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
         <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-        <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
         <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
         <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
         <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
         <GenerateTestArtifacts>True</GenerateTestArtifacts>
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+        <PackageCertificateThumbprint>1764AF6559DCB19C5AAE74E58896D7F0F776A8B2</PackageCertificateThumbprint>
+        <AppxPackageDir>D:\linxin\OneDrive\Learn\MyAITools\package\</AppxPackageDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -65,7 +67,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui" Version="9.0.2"/>
+        <PackageReference Include="CommunityToolkit.Maui" Version="9.0.3"/>
         <PackageReference Include="itext7" Version="8.0.5"/>
         <PackageReference Include="Markdig" Version="0.37.0"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>

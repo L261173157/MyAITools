@@ -1,16 +1,13 @@
 @page "/chat"
-@using System.Text
-@using System.Text.Encodings.Web
-@using System.Text.Json
-@using CommunityToolkit.Maui.Storage
 @using Markdig
 @using MyAiTools.AiFun.Code
 @inject ChatService ChatService
+@inject IJSRuntime JsRuntime
 
 
 <h3>聊天工具</h3>
 
-<div class="chat-container">
+<div id="scrollableDiv" class="chat-container">
     @foreach (var message in _messages)
     {
         <div class="message @(message.IsUser ? "user-message" : "system-message")">
@@ -23,7 +20,7 @@
 </div>
 
 <div class="input-group">
-    <textarea @bind="_userInput" @onkeydown="HandleKeyDown" class="form-control" placeholder="输入你的消息..."></textarea>   
+    <textarea @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."></textarea>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
     <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
     <button class="btn btn-primary" @onclick="SaveFile">存储记忆</button>
@@ -35,10 +32,12 @@
 
 @code {
     private readonly List<MessageModel> _messages = [];
-
     private string? _newReply = string.Empty;
     private string? _userInput;
-
+    
+    /// <summary>
+    ///  初始化
+    /// </summary>
     protected override void OnInitialized()
     {
         ChatService.ChatHistoryChanged += ReadMessage;
@@ -57,15 +56,16 @@
     /// <summary>
     ///     刷新消息
     /// </summary>
-    private void ReadMessage(string streamMessage)
+    private async void ReadMessage(string streamMessage)
     {
-        Task.Run(() =>
+        await Task.Run(() =>
         {
             _newReply += streamMessage;
             _messages.Last().Content = _newReply;
         });
         //手工渲染
         StateHasChanged();
+       await ScrollToBottom(); // 调用 JavaScript 方法滚动到底部
     }
 
     /// <summary>
@@ -81,7 +81,8 @@
             _messages.Add(new MessageModel { Content = _userInput, IsUser = true });
             _userInput = string.Empty; // 清空输入框
             // 模拟系统回复
-            var response = await ChatService.Chat(tempUserInput);
+            await ChatService.Chat(tempUserInput);
+            await ScrollToBottom();
         }
     }
 
@@ -99,13 +100,21 @@
     /// </summary>
     /// <param name="e"></param>
     /// <returns></returns>
-    private async Task HandleKeyDown(KeyboardEventArgs e)
+    private async Task HandleKeyUp(KeyboardEventArgs e)
     {
-        
-        if (e is { Key: "Enter", CtrlKey: true })
+        //todo 无法正常触发，未找到原因
+        if (e is { CtrlKey: true, Key: "Enter" })
         {
             await SendMessage();
         }
+    }
+
+    /// <summary>
+    ///    滚动到底部
+    /// </summary>
+    private async Task ScrollToBottom()
+    {
+        await JsRuntime.InvokeVoidAsync("scrollToBottom");
     }
 
     /// <summary>
@@ -120,23 +129,8 @@
     }
 
     /// <summary>
-    ///     保存对话
+    ///    存储文件
     /// </summary>
-    /// <returns></returns>
-    private async Task SaveConversation()
-    {
-        var options = new JsonSerializerOptions
-        {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            WriteIndented = true // 美化输出，使其更具可读性（可选）
-        };
-        var json = JsonSerializer.Serialize(_messages, options);
-        using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
-        var fileName = $"ChatHistory_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-        var fileSaverResult = await FileSaver.SaveAsync(fileName, stream);
-    }
-
-    //保存文件
     private async Task SaveFile()
     {
         await ChatService.MemorySaveFile();

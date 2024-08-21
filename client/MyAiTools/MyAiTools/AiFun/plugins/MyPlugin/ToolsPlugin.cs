@@ -4,6 +4,8 @@ using CommunityToolkit.Maui.Storage;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using MyAiTools.AiFun.Services;
+using Newtonsoft.Json;
+using NPOI.SS.Formula.Functions;
 
 namespace MyAiTools.AiFun.plugins.MyPlugin;
 
@@ -82,33 +84,33 @@ public class ToolsPlugin
         }
     }
 
-    //[KernelFunction("export_file")]
-    //[Description("Export the content to a specified directory and specified format(default is txt) file")]
-    //[return: Description("export is successful or not")]
-    //public async Task<string?> ExportFile([Description("the content")] string content
-    //)
-    //{
-    //    //获取当前年月日时分秒
-    //    var now = DateTime.Now;
-    //    var time = now.ToString("yyyyMMddHHmmss");
-    //    var fileName = $"export_{time}.txt";
-    //    using var stream = new MemoryStream(Encoding.Default.GetBytes(content));
-    //    var fileSaverResult = await FileSaver.Default.SaveAsync(fileName, stream);
-    //    return fileSaverResult.IsSuccessful ? "ExportFileSuccessful" : "ExportFileFailed";
-    //}
-
-    [KernelFunction("save_file_path")]
-    [Description("provide a full path to save file,include folder and file's name")]
+    [KernelFunction("provide_save_file_path")]
+    [Description("provide a full folder path to save file")]
     [return: Description("the full path")]
     public async Task<string?> SaveFilePath(
     )
     {
-        //获取当前年月日时分秒
-        var now = DateTime.Now;
-        var time = now.ToString("yyyyMMddHHmmss");
-        var fileName = $"export_{time}.txt";
         var result = await FolderPicker.Default.PickAsync();
         _logger.LogInformation("SaveFilePath started");
-        return result.IsSuccessful ? result.Folder.Path + "\\" + fileName : "Save File Failed";
+        return result.IsSuccessful ? result.Folder.Path : "Save File Failed";
+    }
+
+    [KernelFunction("save_content")]
+    [Description("save the content to a json file and the file name can be auto generated")]
+    [return: Description("the full path of the json file")]
+    public async Task<string?> SaveChatHistory([Description("the content to save")] string chatHistory,
+        [Description("the full folder folderPath to save")]
+        string folderPath)
+    {
+        var serializer = new JsonSerializer();
+        var now = DateTime.Now;
+        var time = now.ToString("yyyyMMddHHmmss");
+        var fileName = $"chatHistory_{time}.json";
+        var path = folderPath + "\\" + fileName;
+        await using var sw = new StreamWriter(path);
+        await using JsonWriter writer = new JsonTextWriter(sw);
+        serializer.Serialize(writer, chatHistory);
+
+        return path;
     }
 }
