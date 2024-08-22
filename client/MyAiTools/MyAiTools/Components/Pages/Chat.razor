@@ -65,7 +65,7 @@
         });
         //手工渲染
         StateHasChanged();
-       await ScrollToBottom(); // 调用 JavaScript 方法滚动到底部
+        await ScrollToBottom(); // 调用 JavaScript 方法滚动到底部
     }
 
     /// <summary>
@@ -80,9 +80,10 @@
             var tempUserInput = _userInput;
             _messages.Add(new MessageModel { Content = _userInput, IsUser = true });
             _userInput = string.Empty; // 清空输入框
+            StateHasChanged();
+            await ScrollToBottom();
             // 模拟系统回复
             await ChatService.Chat(tempUserInput);
-            await ScrollToBottom();
         }
     }
 
