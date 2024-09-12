@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Maui;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MyAiTools.AiFun.Code;
 using MyAiTools.AiFun.plugins.MyPlugin;
@@ -19,9 +20,9 @@ public static class MauiProgram
         {
             fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
         });
+        
         builder.UseMauiCommunityToolkit();
         builder.Services.AddMauiBlazorWebView();
-
 
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
