@@ -13,7 +13,7 @@ namespace MyAiTools.AiFun.Services;
 public class KernelCreat : IKernelCreat
 
 {
-    private const string OpenAiChatModelId = "gpt-4o-mini";
+    private const string OpenAiChatModelId = "gpt-4o";
     private const string OpenAiEmbeddingModelId = "text-embedding-3-small";
     private readonly IGetBaseUrl _baseUrl;
 
@@ -81,7 +81,7 @@ public class KernelCreat : IKernelCreat
                 httpClient: new HttpClient(handler))
             .WithSimpleVectorDb(new SimpleVectorDbConfig { Directory = mainDir, StorageType = FileSystemTypes.Disk })
             .WithSimpleFileStorage(new SimpleFileStorageConfig
-                { Directory = mainDir, StorageType = FileSystemTypes.Disk })
+            { Directory = mainDir, StorageType = FileSystemTypes.Disk })
             .Build<MemoryServerless>();
 
         return memory;

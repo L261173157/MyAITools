@@ -1,11 +1,11 @@
-@page "/chat"
+﻿@page "/rag"
 @using Markdig
 @using MyAiTools.AiFun.Code
-@inject ChatService ChatService
 @inject IJSRuntime JsRuntime
+@inject RagService RagService
 
 
-<h3>聊天工具</h3>
+<h3>知识库</h3>
 
 <div id="scrollableDiv" class="chat-container">
     @foreach (var message in _messages)
@@ -20,53 +20,21 @@
 </div>
 
 <div class="input-group">
-    <textarea @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."></textarea>
+    <textarea @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的提问..."></textarea>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
     <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
-    @* <button class="btn btn-primary" @onclick="SaveFile">存储记忆</button> *@
-    @* <button class="btn btn-primary" @onclick="MemoryDelFile">清除记忆</button> *@
-    @* <button class="btn btn-primary" @onclick="SaveConversation">保存</button> *@
-    @* <button class="btn btn-primary" @onclick="LoadMemory">记忆</button> *@
+    <button class="btn btn-primary" @onclick="SaveFile">读取文件</button>
+    <button class="btn btn-primary" @onclick="MemoryDelFile">清除存储</button>
 </div>
 
 
 @code {
-    private readonly List<MessageModel> _messages = [];
-    private string? _newReply = string.Empty;
+    private readonly List<MessageMode> _messages = [];
     private string? _userInput;
-    
-    /// <summary>
-    ///  初始化
-    /// </summary>
+
     protected override void OnInitialized()
     {
-        ChatService.ChatHistoryChanged += ReadMessage;
-        ChatService.BeginNewReply += BeginNewReply;
-    }
 
-    /// <summary>
-    ///     开始一个新的回复
-    /// </summary>
-    private void BeginNewReply()
-    {
-        _newReply = string.Empty;
-        _messages.Add(new MessageModel { Content = _newReply, IsUser = false });
-    }
-
-    /// <summary>
-    ///     刷新消息
-    /// </summary>
-    private async void ReadMessage(string streamMessage)
-    {
-        await Task.Run(() =>
-        {
-            _newReply += streamMessage;
-            _messages.Last().Content = _newReply;
-        });
-        //手工渲染
-        StateHasChanged();
-        // 调用 JavaScript 方法滚动到底部
-        await ScrollToBottom(); 
     }
 
     /// <summary>
@@ -79,12 +47,10 @@
         {
             // 这里可以添加代码来处理用户的输入，比如发送到后端API并获取回复
             var tempUserInput = _userInput;
-            _messages.Add(new MessageModel { Content = _userInput, IsUser = true });
+            _messages.Add(new MessageMode { Content = _userInput, IsUser = true });
             _userInput = string.Empty; // 清空输入框
-            // StateHasChanged();
-            // await ScrollToBottom();
-            // 模拟系统回复
-            await ChatService.Chat(tempUserInput);
+            await RagService.AskAsync(tempUserInput);
+            await ScrollToBottom();
         }
     }
 
@@ -94,7 +60,6 @@
     private void ClearMessage()
     {
         _messages.Clear();
-        ChatService.ClearChatHistory();
     }
 
     /// <summary>
@@ -135,20 +100,21 @@
     /// </summary>
     private async Task SaveFile()
     {
-        await ChatService.MemorySaveFile();
+       var docId= await RagService.MemorySaveFile();
+       _messages.Add(new MessageMode { Content = $"文件已存储，文件ID为{docId}", IsUser = false });
     }
 
     //删除记忆中的文件
     private async Task MemoryDelFile()
     {
         //如果没有输入文件名，则删除所有文件
-        await ChatService.MemoryDelFile(_userInput);
+        await RagService.MemoryDelFile(_userInput);
     }
 
     //对话框显示模型
-    private class MessageModel
+    private class MessageMode
     {
-        public string? Content { get; set; }
+        public string? Content { get; init; }
         public bool IsUser { get; init; }
     }
 

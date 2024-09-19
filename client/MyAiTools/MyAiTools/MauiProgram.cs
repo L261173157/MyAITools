@@ -31,6 +31,7 @@ public static class MauiProgram
         builder.Services.AddTransient<IGetBaseUrl, GetBaseUrl>();
         builder.Services.AddSingleton<ChatService>();
         builder.Services.AddSingleton<PluginService>();
+        builder.Services.AddSingleton<RagService>();
         builder.Services.AddTransient<TestPlugin>();
         builder.Services.AddTransient<GenerateImagePlugin>();
         builder.Services.AddTransient<ToolsPlugin>();
