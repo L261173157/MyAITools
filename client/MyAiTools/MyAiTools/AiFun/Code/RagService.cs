@@ -1,7 +1,13 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.KernelMemory;
+using Microsoft.KernelMemory.AI.Ollama;
+using Microsoft.KernelMemory.AI.OpenAI;
+using Microsoft.KernelMemory.DocumentStorage.DevTools;
+using Microsoft.KernelMemory.FileSystem.DevTools;
+using Microsoft.KernelMemory.MemoryStorage.DevTools;
 using MyAiTools.AiFun.Services;
 
 namespace MyAiTools.AiFun.Code;
@@ -11,14 +17,33 @@ namespace MyAiTools.AiFun.Code;
 public class RagService
 {
     private readonly ILogger<RagService> _logger;
-    private readonly MemoryServerless _memoryServerless;
+
+    //private readonly MemoryServerless _kernelMemory;
+
+    //建立链接Ollama的服务
+    private readonly IKernelMemory _kernelMemory;
+    private const string MainDir = "D:/Memory";
 
     public RagService(IKernelCreat kernel, ILogger<RagService> logger)
     {
-        _memoryServerless = kernel.MemoryServerlessBuild();
+        //_kernelMemory = kernel.MemoryServerlessBuild();
 
         //添加日志
         _logger = logger;
+
+        //建立链接Ollama的服务
+        var config = new OllamaConfig
+        {
+            Endpoint = "http://localhost:11434",
+            TextModel = new OllamaModelConfig("phi3:medium-128k", 131072),
+            EmbeddingModel = new OllamaModelConfig("nomic-embed-text", 2048)
+        };
+        _kernelMemory = new KernelMemoryBuilder()
+            .WithOllamaTextGeneration(config, new GPT4oTokenizer())
+            .WithOllamaTextEmbeddingGeneration(config, new GPT4oTokenizer()).WithSimpleVectorDb(new SimpleVectorDbConfig
+                { Directory = MainDir, StorageType = FileSystemTypes.Disk })
+            .WithSimpleFileStorage(new SimpleFileStorageConfig
+                { Directory = MainDir, StorageType = FileSystemTypes.Disk }).Build();
     }
 
 
@@ -34,7 +59,7 @@ public class RagService
             string? result;
             if (ask != null)
             {
-                var answer = await _memoryServerless.AskAsync(ask);
+                var answer = await _kernelMemory.AskAsync(ask);
                 result = answer.Result;
                 _logger.LogInformation("模型回复成功");
             }
@@ -45,14 +70,13 @@ public class RagService
 
             return result;
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"An error occurred: {ex.Message}");
-            Console.WriteLine(ex.StackTrace);
-            _logger.LogError(ex.Message);
+            Console.WriteLine($"An error occurred: {e.Message}");
+            Console.WriteLine(e.StackTrace);
+            _logger.LogError(e.Message);
+            return e.Message;
         }
-
-        return null;
     }
 
     /// <summary>
@@ -63,16 +87,17 @@ public class RagService
     {
         try
         {
-            var docId = "";
+            var docId = "未存储";
             var filePath = await FilePicker.Default.PickAsync();
             using var md5 = MD5.Create();
             if (filePath?.FileName is not null)
             {
                 var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(filePath?.FileName));
                 //var documentId = BitConverter.ToString(hash).ToLower();
-                var documentId = filePath.FileName;
-                if (!await _memoryServerless.IsDocumentReadyAsync(documentId))
-                    docId = await _memoryServerless.ImportDocumentAsync(filePath.FullPath, documentId);
+                var filename = filePath.FileName;
+                var documentId = FilterAllowedCharacters(filename);
+                if (!await _kernelMemory.IsDocumentReadyAsync(documentId))
+                    docId = await _kernelMemory.ImportDocumentAsync(filePath.FullPath, documentId);
             }
 
             return docId;
@@ -80,7 +105,7 @@ public class RagService
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            return e.Message;
         }
     }
 
@@ -90,17 +115,24 @@ public class RagService
     /// </summary>
     /// <param name="documentId"></param>
     /// <returns></returns>
-    public async Task MemoryDelFile(string? documentId)
+    public async Task<string> MemoryDelFile(string? documentId)
     {
         if (documentId == null)
         {
-            foreach (var index in await _memoryServerless.ListIndexesAsync())
-                await _memoryServerless.DeleteIndexAsync(index.Name);
+            foreach (var index in await _kernelMemory.ListIndexesAsync())
+                await _kernelMemory.DeleteIndexAsync(index.Name);
         }
         else
         {
-            if (await _memoryServerless.IsDocumentReadyAsync(documentId))
-                await _memoryServerless.DeleteDocumentAsync(documentId);
+            if (await _kernelMemory.IsDocumentReadyAsync(documentId))
+                await _kernelMemory.DeleteDocumentAsync(documentId);
         }
+        return "删除成功";
+    }
+
+    static string FilterAllowedCharacters(string input)
+    {
+        // 使用正则表达式替换所有不允许的字符
+        return Regex.Replace(input, @"[^a-zA-Z0-9._-]", string.Empty);
     }
 }

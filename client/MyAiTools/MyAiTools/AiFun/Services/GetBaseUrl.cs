@@ -8,7 +8,7 @@ public class GetBaseUrl : IGetBaseUrl
     {
         var endpoint = Environment.GetEnvironmentVariable("Openai_endpoint");
         if (string.IsNullOrEmpty(endpoint)) throw new Exception("未找到API Endpoint");
-        var baseUrl = "https://api.zhizengzeng.com/";
+        var baseUrl = endpoint;
         return baseUrl;
     }
 

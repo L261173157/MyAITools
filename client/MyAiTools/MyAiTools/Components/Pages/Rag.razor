@@ -5,7 +5,7 @@
 @inject RagService RagService
 
 
-<h3>知识库</h3>
+<h3>知识库(需搭配本地Ollama使用)</h3>
 
 <div id="scrollableDiv" class="chat-container">
     @foreach (var message in _messages)
@@ -49,7 +49,8 @@
             var tempUserInput = _userInput;
             _messages.Add(new MessageMode { Content = _userInput, IsUser = true });
             _userInput = string.Empty; // 清空输入框
-            await RagService.AskAsync(tempUserInput);
+            var answer= await RagService.AskAsync(tempUserInput);
+            _messages.Add(new MessageMode { Content = answer, IsUser = false });
             await ScrollToBottom();
         }
     }
@@ -108,7 +109,8 @@
     private async Task MemoryDelFile()
     {
         //如果没有输入文件名，则删除所有文件
-        await RagService.MemoryDelFile(_userInput);
+      var result=  await RagService.MemoryDelFile(_userInput);
+      _messages.Add(new MessageMode { Content = result, IsUser = false });
     }
 
     //对话框显示模型
