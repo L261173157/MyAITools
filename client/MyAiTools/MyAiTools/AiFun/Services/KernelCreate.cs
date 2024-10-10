@@ -10,14 +10,14 @@ using Microsoft.SemanticKernel.Memory;
 
 namespace MyAiTools.AiFun.Services;
 
-public class KernelCreat : IKernelCreat
+public class KernelCreate : IKernelCreat
 
 {
     private const string OpenAiChatModelId = "gpt-4o";
-    private const string OpenAiEmbeddingModelId = "text-embedding-3-small";
+    private const string OpenAiEmbeddingModelId = "text-embedding-ada-002";
     private readonly IGetBaseUrl _baseUrl;
 
-    public KernelCreat(IGetBaseUrl baseUrl)
+    public KernelCreate(IGetBaseUrl baseUrl)
     {
         _baseUrl = baseUrl;
     }
@@ -25,7 +25,7 @@ public class KernelCreat : IKernelCreat
     [Experimental("SKEXP0001")]
     public Kernel KernelBuild()
     {
-        var handler = new OpenAiHttpClientHandler(_baseUrl);
+        var handler = new OpenAiHttpClientHandler(_baseUrl,baseUrlType:BaseUrlType.OpenaiEndpoint);
         var openAiKey = _baseUrl.GetApiKey();
         var builder = Kernel.CreateBuilder();
         //builder.Plugins.AddFromType<MathPlugin>();
@@ -54,7 +54,7 @@ public class KernelCreat : IKernelCreat
     [Experimental("SKEXP0001")]
     public ISemanticTextMemory MemoryBuild()
     {
-        var handler = new OpenAiHttpClientHandler(_baseUrl);
+        var handler = new OpenAiHttpClientHandler(_baseUrl,baseUrlType:BaseUrlType.OpenaiEndpoint);
         var openAiKey = _baseUrl.GetApiKey();
         var memoryBuilder = new MemoryBuilder();
         memoryBuilder.WithOpenAITextEmbeddingGeneration(OpenAiEmbeddingModelId, openAiKey,
@@ -70,15 +70,17 @@ public class KernelCreat : IKernelCreat
     {
         //本地存储位置
         var mainDir = FileSystem.Current.AppDataDirectory;
-        var handler = new OpenAiHttpClientHandler(_baseUrl);
-        var openAiKey = _baseUrl.GetApiKey();
+        var handler1 = new OpenAiHttpClientHandler(_baseUrl, baseUrlType: BaseUrlType.OpenaiEndpoint);
+        var handler2 = new OpenAiHttpClientHandler(_baseUrl, baseUrlType: BaseUrlType.OpenaiEndpoint2);
+        var openAiKey1 = _baseUrl.GetApiKey();
+        var openAiKey2 = _baseUrl.GetApiKey2();
         //var memory = new KernelMemoryBuilder().WithOpenAIDefaults(openAiKey, httpClient: new HttpClient(handler)).Build<MemoryServerless>();
         var memory = new KernelMemoryBuilder()
             .WithOpenAITextEmbeddingGeneration(
-                new OpenAIConfig { APIKey = openAiKey, EmbeddingModel = OpenAiEmbeddingModelId },
-                httpClient: new HttpClient(handler))
-            .WithOpenAITextGeneration(new OpenAIConfig { APIKey = openAiKey, TextModel = OpenAiChatModelId },
-                httpClient: new HttpClient(handler))
+                new OpenAIConfig { APIKey = openAiKey2, EmbeddingModel = OpenAiEmbeddingModelId },
+                httpClient: new HttpClient(handler2))
+            .WithOpenAITextGeneration(new OpenAIConfig { APIKey = openAiKey1, TextModel = OpenAiChatModelId },
+                httpClient: new HttpClient(handler1))
             .WithSimpleVectorDb(new SimpleVectorDbConfig { Directory = mainDir, StorageType = FileSystemTypes.Disk })
             .WithSimpleFileStorage(new SimpleFileStorageConfig
             { Directory = mainDir, StorageType = FileSystemTypes.Disk })

@@ -32,19 +32,19 @@ public class ChatService
         _kernel = kernel.KernelBuild();
         _memoryServerless = kernel.MemoryServerlessBuild();
         //增加内置插件
-        _kernel.ImportPluginFromType<TimePlugin>("Time");
+        //_kernel.ImportPluginFromType<TimePlugin>("Time");
         //_kernel.ImportPluginFromType<ConversationSummaryPlugin>("ConversationSummary");
         _kernel.ImportPluginFromType<FileIOPlugin>("FileIO");
-        _kernel.ImportPluginFromType<HttpPlugin>("Http");
-        _kernel.ImportPluginFromType<MathPlugin>("Math");
-        _kernel.ImportPluginFromType<TextPlugin>("Text");
-        _kernel.ImportPluginFromType<WaitPlugin>("Wait");
+        //_kernel.ImportPluginFromType<HttpPlugin>("Http");
+        //_kernel.ImportPluginFromType<MathPlugin>("Math");
+        //_kernel.ImportPluginFromType<TextPlugin>("Text");
+        //_kernel.ImportPluginFromType<WaitPlugin>("Wait");
 
         //增加图片生成插件
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
         if (generateImage != null) _kernel.ImportPluginFromObject(generateImage, "Generate_Image");
         //增加KM插件
-        _kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
+        //_kernel.ImportPluginFromObject(new MemoryPlugin(_memoryServerless), "kernel_memory");
         //增加本地工具插件
         var tools = MauiProgram.Services.GetService(typeof(ToolsPlugin));
         if (tools != null) _kernel.ImportPluginFromObject(tools, "Local_Tools");
@@ -77,18 +77,19 @@ public class ChatService
     /// </summary>
     /// <param name="ask">用户提问</param>
     /// <returns></returns>
-    public async Task<string?> Chat(string? ask)
+    public async Task Chat(string? ask)
     {
         try
         {
-            string? result;
             if (ask != null)
             {
                 ChatHistory.AddUserMessage(ask);
 
-                //异步调用模型
+                //#region 异步调用模型
+
+                ////异步调用模型
                 //var assistantReply = await _chatGpt.GetChatMessageContentAsync(ChatHistory,
-                //    executionSettings: _openAiPromptExecutionSettings, kernel: _kernel);
+                //    _openAiPromptExecutionSettings, _kernel);
 
                 //if (assistantReply.Content != null)
                 //{
@@ -97,6 +98,10 @@ public class ChatService
                 //    ChatHistory.AddAssistantMessage(assistantReply.Content);
                 //}
 
+                //#endregion
+
+
+                #region 流式调用模型
 
                 //流式调用模型
                 var assistantReply = _chatGpt.GetStreamingChatMessageContentsAsync(ChatHistory,
@@ -113,24 +118,23 @@ public class ChatService
 
                 ChatHistory.AddAssistantMessage(fullMessage);
 
-                result = "模型回复成功";
-                _logger.LogInformation("模型回复成功");
+                #endregion
             }
             else
             {
-                result = "请输入问题";
+                var result = "请输入问题";
+                BeginNewReply?.Invoke();
+                ChatHistoryChanged?.Invoke(result);
             }
-
-            return result;
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"An error occurred: {ex.Message}");
-            Console.WriteLine(ex.StackTrace);
-            _logger.LogError(ex.Message);
+            Console.WriteLine($"An error occurred: {e.Message}");
+            Console.WriteLine(e.StackTrace);
+            _logger.LogError(e.Message);
+            BeginNewReply?.Invoke();
+            ChatHistoryChanged?.Invoke(e.Message);
         }
-
-        return null;
     }
 
     /// <summary>

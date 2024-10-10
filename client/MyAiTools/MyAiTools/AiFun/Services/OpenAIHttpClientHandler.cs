@@ -1,14 +1,34 @@
 ﻿namespace MyAiTools.AiFun.Services;
 
-public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
+public enum BaseUrlType
 {
-    private readonly string _Host = baseUrl.GetHost();
+    OpenaiEndpoint,
+    OpenaiEndpoint2
+}
 
+public class OpenAiHttpClientHandler: HttpClientHandler
+{
+    private readonly string _host;
     //拦截请求地址
-    private readonly string _Scheme = baseUrl.GetScheme();
-    //private string _Path;
-
-    //_Path = baseUrl.GetPath();
+    private readonly string _scheme;
+    public OpenAiHttpClientHandler(IGetBaseUrl baseUrl, BaseUrlType baseUrlType)
+    {
+        if (baseUrlType== BaseUrlType.OpenaiEndpoint)
+        {
+            _host= baseUrl.GetHost();
+            _scheme = baseUrl.GetScheme();
+        }
+        else if (baseUrlType == BaseUrlType.OpenaiEndpoint2)
+        {
+            _host = baseUrl.GetHost2();
+            _scheme = baseUrl.GetScheme2();
+        }
+        else
+        {
+            throw new Exception("未知的请求地址");
+        }
+    }
+    
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
@@ -18,8 +38,8 @@ public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
         {
             var uriBuilder = new UriBuilder(request.RequestUri)
             {
-                Scheme = _Scheme,
-                Host = _Host,
+                Scheme = _scheme,
+                Host = _host,
                 Path = "/v1/chat/completions"
             };
             request.RequestUri = uriBuilder.Uri;
@@ -29,8 +49,8 @@ public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
         {
             var uriBuilder = new UriBuilder(request.RequestUri)
             {
-                Scheme = _Scheme,
-                Host = _Host,
+                Scheme = _scheme,
+                Host = _host,
                 Path = "/v1/images/generations"
             };
             request.RequestUri = uriBuilder.Uri;
@@ -40,8 +60,8 @@ public class OpenAiHttpClientHandler(IGetBaseUrl baseUrl) : HttpClientHandler
         {
             var uriBuilder = new UriBuilder(request.RequestUri)
             {
-                Scheme = _Scheme,
-                Host = _Host,
+                Scheme = _scheme,
+                Host = _host,
                 Path = "/v1/embeddings"
             };
             request.RequestUri = uriBuilder.Uri;

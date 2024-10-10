@@ -101,8 +101,8 @@
     /// </summary>
     private async Task SaveFile()
     {
-       var docId= await RagService.MemorySaveFile();
-       _messages.Add(new MessageMode { Content = $"文件已存储，文件ID为{docId}", IsUser = false });
+       var result= await RagService.MemorySaveFile();
+       _messages.Add(new MessageMode { Content = $"{result}", IsUser = false });
     }
 
     //删除记忆中的文件

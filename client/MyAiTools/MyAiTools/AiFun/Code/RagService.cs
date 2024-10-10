@@ -18,19 +18,21 @@ public class RagService
 {
     private readonly ILogger<RagService> _logger;
 
-    //private readonly MemoryServerless _kernelMemory;
+    //建立MemoryServerless的服务
+    private readonly MemoryServerless _memoryServerless;
 
     //建立链接Ollama的服务
+    private readonly IKernelMemory _localMemory;
+
     private readonly IKernelMemory _kernelMemory;
     private const string MainDir = "D:/Memory";
 
     public RagService(IKernelCreat kernel, ILogger<RagService> logger)
     {
-        //_kernelMemory = kernel.MemoryServerlessBuild();
-
         //添加日志
         _logger = logger;
-
+        //建立memory serverless服务
+        _memoryServerless = kernel.MemoryServerlessBuild();
         //建立链接Ollama的服务
         var config = new OllamaConfig
         {
@@ -38,12 +40,15 @@ public class RagService
             TextModel = new OllamaModelConfig("phi3:medium-128k", 131072),
             EmbeddingModel = new OllamaModelConfig("nomic-embed-text", 2048)
         };
-        _kernelMemory = new KernelMemoryBuilder()
+        _localMemory = new KernelMemoryBuilder()
             .WithOllamaTextGeneration(config, new GPT4oTokenizer())
             .WithOllamaTextEmbeddingGeneration(config, new GPT4oTokenizer()).WithSimpleVectorDb(new SimpleVectorDbConfig
                 { Directory = MainDir, StorageType = FileSystemTypes.Disk })
             .WithSimpleFileStorage(new SimpleFileStorageConfig
                 { Directory = MainDir, StorageType = FileSystemTypes.Disk }).Build();
+
+        _kernelMemory = _memoryServerless as IKernelMemory;
+        //_kernelMemory = _localMemory;
     }
 
 
@@ -75,7 +80,7 @@ public class RagService
             Console.WriteLine($"An error occurred: {e.Message}");
             Console.WriteLine(e.StackTrace);
             _logger.LogError(e.Message);
-            return e.Message;
+            return "报错信息:"+ e.Message;
         }
     }
 
@@ -100,12 +105,12 @@ public class RagService
                     docId = await _kernelMemory.ImportDocumentAsync(filePath.FullPath, documentId);
             }
 
-            return docId;
+            return "文件ID:"+ docId;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            return e.Message;
+            return "错误信息:"+ e.Message;
         }
     }
 

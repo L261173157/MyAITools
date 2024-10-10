@@ -27,7 +27,7 @@ public static class MauiProgram
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
 
-        builder.Services.AddTransient<IKernelCreat, KernelCreat>();
+        builder.Services.AddTransient<IKernelCreat, KernelCreate>();
         builder.Services.AddTransient<IGetBaseUrl, GetBaseUrl>();
         builder.Services.AddSingleton<ChatService>();
         builder.Services.AddSingleton<PluginService>();

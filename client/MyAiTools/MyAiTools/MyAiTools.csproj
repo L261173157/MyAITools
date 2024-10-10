@@ -67,19 +67,19 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui" Version="9.0.3" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
         <PackageReference Include="itext7" Version="8.0.5" />
         <PackageReference Include="Markdig" Version="0.37.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-        <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.73.240906.1" />
-        <PackageReference Include="Microsoft.KernelMemory.SemanticKernelPlugin" Version="0.73.240906.1" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.90" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.90" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.90" />
+        <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.78.241005.1" />
+        <PackageReference Include="Microsoft.KernelMemory.SemanticKernelPlugin" Version="0.78.241005.1" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.91" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.91" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.91" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.90" />
-        <PackageReference Include="Microsoft.SemanticKernel" Version="1.20.0" />
+        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.91" />
+        <PackageReference Include="Microsoft.SemanticKernel" Version="1.21.1" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.18.0-alpha" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.18.0-alpha" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.18.0-alpha" />
