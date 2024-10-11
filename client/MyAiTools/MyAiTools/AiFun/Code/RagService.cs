@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Microsoft.International.Converters.PinYinConverter;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI.Ollama;
 using Microsoft.KernelMemory.AI.OpenAI;
@@ -122,22 +123,50 @@ public class RagService
     /// <returns></returns>
     public async Task<string> MemoryDelFile(string? documentId)
     {
-        if (documentId == null)
+        try
         {
-            foreach (var index in await _kernelMemory.ListIndexesAsync())
-                await _kernelMemory.DeleteIndexAsync(index.Name);
+            if (documentId == null)
+            {
+                foreach (var index in await _kernelMemory.ListIndexesAsync())
+                    await _kernelMemory.DeleteIndexAsync(index.Name);
+            }
+            else
+            {
+                if (await _kernelMemory.IsDocumentReadyAsync(documentId))
+                    await _kernelMemory.DeleteDocumentAsync(documentId);
+            }
+            return "删除成功";
         }
-        else
+        catch (Exception e)
         {
-            if (await _kernelMemory.IsDocumentReadyAsync(documentId))
-                await _kernelMemory.DeleteDocumentAsync(documentId);
+            var message = e.Message;
+            return "错误信息:" + message;
         }
-        return "删除成功";
+        
     }
 
     static string FilterAllowedCharacters(string input)
     {
+        //中文转换为拼音
+        string str = input;
+        string result = string.Empty;
+        foreach (char item in str)
+        {
+            try
+            {
+                ChineseChar cc = new ChineseChar(item);
+                if (cc.Pinyins.Count > 0 && cc.Pinyins[0].Length > 0)
+                {
+                    string temp = cc.Pinyins[0].ToString();
+                    result += temp.Substring(0, temp.Length - 1);
+                }
+            }
+            catch (Exception)
+            {
+                result += item.ToString();
+            }
+        }
         // 使用正则表达式替换所有不允许的字符
-        return Regex.Replace(input, @"[^a-zA-Z0-9._-]", string.Empty);
+        return Regex.Replace(result, @"[^a-zA-Z0-9._-]", string.Empty);
     }
 }

@@ -85,6 +85,7 @@
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.18.0-alpha" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="NPOI" Version="2.7.1" />
+        <PackageReference Include="PinYinConverterCore" Version="1.0.2" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 

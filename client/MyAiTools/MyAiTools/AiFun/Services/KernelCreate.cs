@@ -15,6 +15,7 @@ public class KernelCreate : IKernelCreat
 {
     private const string OpenAiChatModelId = "gpt-4o";
     private const string OpenAiEmbeddingModelId = "text-embedding-ada-002";
+    private const string DefaultDir = "D:/Memory";
     private readonly IGetBaseUrl _baseUrl;
 
     public KernelCreate(IGetBaseUrl baseUrl)
@@ -69,7 +70,8 @@ public class KernelCreate : IKernelCreat
     public MemoryServerless MemoryServerlessBuild()
     {
         //本地存储位置
-        var mainDir = FileSystem.Current.AppDataDirectory;
+        //var mainDir = FileSystem.Current.AppDataDirectory;
+        var mainDir = DefaultDir;
         var handler1 = new OpenAiHttpClientHandler(_baseUrl, baseUrlType: BaseUrlType.OpenaiEndpoint);
         var handler2 = new OpenAiHttpClientHandler(_baseUrl, baseUrlType: BaseUrlType.OpenaiEndpoint2);
         var openAiKey1 = _baseUrl.GetApiKey();
