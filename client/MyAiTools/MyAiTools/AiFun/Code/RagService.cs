@@ -19,12 +19,6 @@ public class RagService
 {
     private readonly ILogger<RagService> _logger;
 
-    //建立MemoryServerless的服务
-    private readonly MemoryServerless _memoryServerless;
-
-    //建立链接Ollama的服务
-    private readonly IKernelMemory _localMemory;
-
     private readonly IKernelMemory _kernelMemory;
     private const string MainDir = "D:/Memory";
 
@@ -33,7 +27,7 @@ public class RagService
         //添加日志
         _logger = logger;
         //建立memory serverless服务
-        _memoryServerless = kernel.MemoryServerlessBuild();
+        var memoryServerless = kernel.MemoryServerlessBuild();
         //建立链接Ollama的服务
         var config = new OllamaConfig
         {
@@ -41,14 +35,14 @@ public class RagService
             TextModel = new OllamaModelConfig("phi3:medium-128k", 131072),
             EmbeddingModel = new OllamaModelConfig("nomic-embed-text", 2048)
         };
-        _localMemory = new KernelMemoryBuilder()
+        var localMemory = new KernelMemoryBuilder()
             .WithOllamaTextGeneration(config, new GPT4oTokenizer())
             .WithOllamaTextEmbeddingGeneration(config, new GPT4oTokenizer()).WithSimpleVectorDb(new SimpleVectorDbConfig
                 { Directory = MainDir, StorageType = FileSystemTypes.Disk })
             .WithSimpleFileStorage(new SimpleFileStorageConfig
                 { Directory = MainDir, StorageType = FileSystemTypes.Disk }).Build();
 
-        _kernelMemory = _memoryServerless as IKernelMemory;
+        _kernelMemory = memoryServerless as IKernelMemory;
         //_kernelMemory = _localMemory;
     }
 
@@ -66,7 +60,7 @@ public class RagService
             if (ask != null)
             {
                 var answer = await _kernelMemory.AskAsync(ask);
-                result = answer.Result;
+                result ="文档："+answer.RelevantSources+"反馈：" +answer.Result;
                 _logger.LogInformation("模型回复成功");
             }
             else
@@ -93,7 +87,7 @@ public class RagService
     {
         try
         {
-            var docId = "未存储";
+            string docId="";
             var filePath = await FilePicker.Default.PickAsync();
             using var md5 = MD5.Create();
             if (filePath?.FileName is not null)
@@ -104,6 +98,14 @@ public class RagService
                 var documentId = FilterAllowedCharacters(filename);
                 if (!await _kernelMemory.IsDocumentReadyAsync(documentId))
                     docId = await _kernelMemory.ImportDocumentAsync(filePath.FullPath, documentId);
+                else
+                {
+                    docId = "文件已存在";
+                }
+            }
+            else
+            {
+                docId = "未找到文件";
             }
 
             return "文件ID:"+ docId;

@@ -13,19 +13,18 @@ public class OpenAiHttpClientHandler: HttpClientHandler
     private readonly string _scheme;
     public OpenAiHttpClientHandler(IGetBaseUrl baseUrl, BaseUrlType baseUrlType)
     {
-        if (baseUrlType== BaseUrlType.OpenaiEndpoint)
+        switch (baseUrlType)
         {
-            _host= baseUrl.GetHost();
-            _scheme = baseUrl.GetScheme();
-        }
-        else if (baseUrlType == BaseUrlType.OpenaiEndpoint2)
-        {
-            _host = baseUrl.GetHost2();
-            _scheme = baseUrl.GetScheme2();
-        }
-        else
-        {
-            throw new Exception("未知的请求地址");
+            case BaseUrlType.OpenaiEndpoint:
+                _host= baseUrl.GetHost();
+                _scheme = baseUrl.GetScheme();
+                break;
+            case BaseUrlType.OpenaiEndpoint2:
+                _host = baseUrl.GetHost2();
+                _scheme = baseUrl.GetScheme2();
+                break;
+            default:
+                throw new Exception("未知的请求地址");
         }
     }
     

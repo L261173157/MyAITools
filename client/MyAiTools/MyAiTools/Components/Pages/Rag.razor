@@ -4,19 +4,19 @@
 @inject IJSRuntime JsRuntime
 @inject RagService RagService
 
-
-<div id="scrollableDiv" class="chat-container">
-    @foreach (var message in _messages)
-    {
-        <div class="message @(message.IsUser ? "user-message" : "system-message")">
-            @if (message.Content != null)
-            {
-                @((MarkupString)FormatMessage(message.Content))
-            }
-        </div>
-    }
+<div class="chat-container">
+    <div id="scrollableDiv" class="chat-container">
+        @foreach (var message in _messages)
+        {
+            <div class="message @(message.IsUser ? "user-message" : "assistant-message")">
+                @if (message.Content != null)
+                {
+                    @((MarkupString)FormatMessage(message.Content))
+                }
+            </div>
+        }
+    </div>
 </div>
-
 <div class="input-group">
     <textarea @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的提问..."></textarea>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
@@ -25,14 +25,12 @@
     <button class="btn btn-primary" @onclick="MemoryDelFile">清除存储</button>
 </div>
 
-
 @code {
     private readonly List<MessageMode> _messages = [];
     private string? _userInput;
 
     protected override void OnInitialized()
     {
-
     }
 
     /// <summary>
@@ -47,7 +45,7 @@
             var tempUserInput = _userInput;
             _messages.Add(new MessageMode { Content = _userInput, IsUser = true });
             _userInput = string.Empty; // 清空输入框
-            var answer= await RagService.AskAsync(tempUserInput);
+            var answer = await RagService.AskAsync(tempUserInput);
             _messages.Add(new MessageMode { Content = answer, IsUser = false });
             await ScrollToBottom();
         }
@@ -99,16 +97,16 @@
     /// </summary>
     private async Task SaveFile()
     {
-       var result= await RagService.MemorySaveFile();
-       _messages.Add(new MessageMode { Content = $"{result}", IsUser = false });
+        var result = await RagService.MemorySaveFile();
+        _messages.Add(new MessageMode { Content = $"{result}", IsUser = false });
     }
 
     //删除记忆中的文件
     private async Task MemoryDelFile()
     {
         //如果没有输入文件名，则删除所有文件
-      var result=  await RagService.MemoryDelFile(_userInput);
-      _messages.Add(new MessageMode { Content = result, IsUser = false });
+        var result = await RagService.MemoryDelFile(_userInput);
+        _messages.Add(new MessageMode { Content = result, IsUser = false });
     }
 
     //对话框显示模型

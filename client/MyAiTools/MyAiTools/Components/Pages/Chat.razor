@@ -1,71 +1,79 @@
 @page "/chat"
 @using Markdig
 @using MyAiTools.AiFun.Code
+@using MyAiTools.AiFun.Model
+
 @inject ChatService ChatService
 @inject IJSRuntime JsRuntime
 
 
+<div class="chat-container">
 
-<div id="scrollableDiv" class="chat-container">
-    @foreach (var message in _messages)
-    {
-        <div class="message @(message.IsUser ? "user-message" : "system-message")">
-            @if (message.Content != null)
-            {
-                @((MarkupString)FormatMessage(message.Content))
-            }
-        </div>
-    }
+    <div id="scrollableDiv" class="messages">
+        @foreach (var message in _currentDialog.Messages)
+        {
+            <div class="message @GetMessageRole(message)">
+                @if (message.Content != null)
+                {
+                    @((MarkupString)FormatMessage(message.Content))
+                }
+            </div>
+        }
+    </div>
+
+    <div class="dialog-list">
+        @foreach (var dialog in ChatService.DialogGroup.Dialogs)
+        {
+            <button class="btn @GetButtonColor(dialog)" @onclick="() => LoadDialog(dialog)">@dialog.Title</button>
+        }
+    </div>
+
 </div>
 
 <div class="input-group">
     <textarea @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."></textarea>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
     <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
-    @* <button class="btn btn-primary" @onclick="SaveFile">存储记忆</button> *@
-    @* <button class="btn btn-primary" @onclick="MemoryDelFile">清除记忆</button> *@
-    @* <button class="btn btn-primary" @onclick="SaveConversation">保存</button> *@
-    @* <button class="btn btn-primary" @onclick="LoadMemory">记忆</button> *@
+    <button class="btn btn-primary" @onclick="AddDialog">新对话</button> <!-- Add button to start a new dialog topic -->
 </div>
 
 
 @code {
-    private readonly List<MessageModel> _messages = [];
+    private DialogModel _currentDialog=new() {Id = 0,Title = ""}; // Add a property to store the current dialog
+    private int _currentDialogId = 1; // Add a property to store the current dialog ID
+
     private string? _newReply = string.Empty;
     private string? _userInput;
-    
+
     /// <summary>
     ///  初始化
     /// </summary>
     protected override void OnInitialized()
     {
-        ChatService.ChatHistoryChanged += ReadMessage;
         ChatService.BeginNewReply += BeginNewReply;
     }
 
     /// <summary>
     ///     开始一个新的回复
     /// </summary>
-    private void BeginNewReply()
+    private async void BeginNewReply()
     {
-        _newReply = string.Empty;
-        _messages.Add(new MessageModel { Content = _newReply, IsUser = false });
-    }
-
-    /// <summary>
-    ///     刷新消息
-    /// </summary>
-    private async void ReadMessage(string streamMessage)
-    {
-        await Task.Run(() =>
-        {
-            _newReply += streamMessage;
-            _messages.Last().Content = _newReply;
-        });
+        await Task.Run(SynMessage);
         //手工渲染
         StateHasChanged();
         // 调用 JavaScript 方法滚动到底部
-        await ScrollToBottom(); 
+        await ScrollToBottom();
+    }
+
+    /// <summary>
+    /// 与后台同步消息
+    /// </summary>
+    private void SynMessage()
+    {
+        foreach (var dialog in ChatService.DialogGroup.Dialogs.Where(dialog => dialog.Id == _currentDialogId))
+        {
+            _currentDialog = dialog;
+        }
     }
 
     /// <summary>
@@ -77,13 +85,10 @@
         if (!string.IsNullOrWhiteSpace(_userInput))
         {
             // 这里可以添加代码来处理用户的输入，比如发送到后端API并获取回复
-            var tempUserInput = _userInput;
-            _messages.Add(new MessageModel { Content = _userInput, IsUser = true });
+            var userInput = _userInput;
             _userInput = string.Empty; // 清空输入框
-            // StateHasChanged();
-            // await ScrollToBottom();
-            // 模拟系统回复
-            await ChatService.Chat(tempUserInput);
+            // 系统回复
+            await ChatService.Chat(userInput, _currentDialogId);
         }
     }
 
@@ -92,9 +97,11 @@
     /// </summary>
     private void ClearMessage()
     {
-        _messages.Clear();
-        ChatService.ClearChatHistory();
+        ChatService.ClearChatHistory(_currentDialogId);
     }
+
+
+    #region 小功能区域
 
     /// <summary>
     ///     快捷键处理
@@ -128,28 +135,44 @@
         var mdMessage = Markdown.ToHtml(message);
         return mdMessage;
     }
+    //获取消息角色
+    private string GetMessageRole(MessageModel message)
+    {
+        return message.Role switch
+        {
+            ChatRole.User => "user-message",
+            ChatRole.System => "system-message",
+            ChatRole.Assistant => "assistant-message",
+            _ => "system-message"
+        };
+    }
+    //获取按钮颜色
+    private string GetButtonColor(DialogModel dialog)
+    {
+        return dialog.Id == _currentDialogId ?   "btn-secondary":"btn-primary";
+    }
+
+    #endregion
 
     /// <summary>
-    ///    存储文件
+    ///     开启新对话主题
     /// </summary>
-    private async Task SaveFile()
+    private void AddDialog()
     {
-        await ChatService.MemorySaveFile();
+        ChatService.AddDialog();
+        LoadDialog(ChatService.DialogGroup.Dialogs.Last());
     }
 
-    //删除记忆中的文件
-    private async Task MemoryDelFile()
+    /// <summary>
+    ///     加载对话
+    /// </summary>
+    /// <param name="dialog"></param>
+    private void LoadDialog(DialogModel dialog)
     {
-        //如果没有输入文件名，则删除所有文件
-        await ChatService.MemoryDelFile(_userInput);
+        _currentDialogId = dialog.Id;
+        SynMessage();
+        //手工渲染
+        StateHasChanged();
     }
-
-    //对话框显示模型
-    private class MessageModel
-    {
-        public string? Content { get; set; }
-        public bool IsUser { get; init; }
-    }
-
 
 }
