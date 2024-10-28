@@ -26,7 +26,7 @@ public class KernelCreate : IKernelCreat
     [Experimental("SKEXP0001")]
     public Kernel KernelBuild()
     {
-        var handler = new OpenAiHttpClientHandler(_baseUrl,baseUrlType:BaseUrlType.OpenaiEndpoint);
+        var handler = new OpenAiHttpClientHandler(_baseUrl, baseUrlType: BaseUrlType.OpenaiEndpoint);
         var openAiKey = _baseUrl.GetApiKey();
         var builder = Kernel.CreateBuilder();
         //builder.Plugins.AddFromType<MathPlugin>();
@@ -55,7 +55,7 @@ public class KernelCreate : IKernelCreat
     [Experimental("SKEXP0001")]
     public ISemanticTextMemory MemoryBuild()
     {
-        var handler = new OpenAiHttpClientHandler(_baseUrl,baseUrlType:BaseUrlType.OpenaiEndpoint);
+        var handler = new OpenAiHttpClientHandler(_baseUrl, baseUrlType: BaseUrlType.OpenaiEndpoint);
         var openAiKey = _baseUrl.GetApiKey();
         var memoryBuilder = new MemoryBuilder();
         memoryBuilder.WithOpenAITextEmbeddingGeneration(OpenAiEmbeddingModelId, openAiKey,
@@ -85,7 +85,7 @@ public class KernelCreate : IKernelCreat
                 httpClient: new HttpClient(handler1))
             .WithSimpleVectorDb(new SimpleVectorDbConfig { Directory = mainDir, StorageType = FileSystemTypes.Disk })
             .WithSimpleFileStorage(new SimpleFileStorageConfig
-            { Directory = mainDir, StorageType = FileSystemTypes.Disk })
+                { Directory = mainDir, StorageType = FileSystemTypes.Disk })
             .Build<MemoryServerless>();
 
         return memory;

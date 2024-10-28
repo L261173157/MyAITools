@@ -78,6 +78,8 @@ h1:focus {
 .dialog-list {
     width: 10%;
     margin: 20px auto;
+    display: flex;
+    flex-direction: column; /* 垂直排列子元素 */
 }
 
 .messages {

@@ -1,12 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
 using Amazon.S3.Model;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
 using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Plugins.Core;
+using MyAiTools.AiFun.Data;
 using MyAiTools.AiFun.Model;
 using MyAiTools.AiFun.plugins.MyPlugin;
 using MyAiTools.AiFun.Services;
@@ -14,6 +16,12 @@ using Newtonsoft.Json;
 using UglyToad.PdfPig.Logging;
 
 namespace MyAiTools.AiFun.Code;
+
+public enum ChatMethod
+{
+    Streaming,
+    Async
+}
 
 #pragma warning disable SKEXP0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
 #pragma warning disable SKEXP0050 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
@@ -26,7 +34,7 @@ public class ChatService
     private readonly MemoryServerless _memoryServerless;
     private readonly OpenAIPromptExecutionSettings _openAiPromptExecutionSettings;
 
-    private readonly KernelPlugin _conversationSummaryPlugin;
+    private DataBase _dataBase;
 
     private const string SystemMessage =
         """
@@ -39,13 +47,20 @@ public class ChatService
         you will keep asking questions until you have enough information to complete the task.
         """;
 
+    /// <summary>
+    /// 对话组
+    /// </summary>
+    public readonly DialogGroup DialogGroup;
 
-    public DialogGroupModel DialogGroup;
+    /// <summary>
+    /// 刷新消息
+    /// </summary>
+    public event Action? RefreshMessage;
 
-    //回复时触发
-    public event Action? BeginNewReply;
+    //聊天返回方式
+    public ChatMethod ChatMethod { get; set; }
 
-    public ChatService(IKernelCreat kernel, ILogger<ChatService> logger)
+    public ChatService(IKernelCreat kernel, ILogger<ChatService> logger, DataBase dataBase)
     {
         _kernel = kernel.KernelBuild();
         _memoryServerless = kernel.MemoryServerlessBuild();
@@ -58,7 +73,6 @@ public class ChatService
         //_kernel.ImportPluginFromType<TextPlugin>("Text");
         //_kernel.ImportPluginFromType<WaitPlugin>("Wait");
 
-        _conversationSummaryPlugin= _kernel.ImportPluginFromType<ConversationSummaryPlugin>();
 
         //增加图片生成插件
         var generateImage = MauiProgram.Services.GetService(typeof(GenerateImagePlugin));
@@ -77,10 +91,13 @@ public class ChatService
         _openAiPromptExecutionSettings = new OpenAIPromptExecutionSettings
             { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
 
-        DialogGroup = new DialogGroupModel(SystemMessage);
-
+        ChatMethod = ChatMethod.Streaming;
         //添加日志
         _logger = logger;
+        //初始化对话数据库
+        _dataBase = dataBase;
+        //初始化对话组
+        DialogGroup = new DialogGroup(_dataBase);
     }
 
 
@@ -96,45 +113,60 @@ public class ChatService
         {
             if (ask != null)
             {
-                foreach (var dialog in DialogGroup.Dialogs.Where(dialog => dialog.Id == currentId))
+                var dialog = DialogGroup.Dialogs.First(d => d.Id == currentId);
+
+                dialog.AddMessage(content: ask, role: ChatRole.User);
+                dialog.AddChatHistory(content: ask, role: ChatRole.User);
+                RefreshMessage?.Invoke();
+                if (string.IsNullOrWhiteSpace(dialog.Title))
                 {
-                    dialog.AddMessage(content: ask, role: ChatRole.User);
-                    dialog.AddChatHistory(content: ask, role: ChatRole.User);
-                    dialog.Title = await Summary(dialog.Messages.First().Content);
-                    BeginNewReply?.Invoke();
+                    var title = await Summary(dialog.Messages.First().Content);
+                    await dialog.UpdateTitle(title);
+                }
 
-                    #region 异步调用模型
+                RefreshMessage?.Invoke();
+                switch (ChatMethod)
+                {
+                    case ChatMethod.Streaming:
 
-                    //var assistantReply = await _chatGpt.GetChatMessageContentAsync(dialog.ChatHistory,
-                    //    _openAiPromptExecutionSettings, _kernel);
+                        #region 流式调用模型
 
-                    //if (assistantReply.Content != null)
-                    //{
-                    //    dialog.AddMessage(content: assistantReply.Content, role: ChatRole.Assistant);
-                    //    BeginNewReply?.Invoke();
-                    //    dialog.AddChatHistory(assistantReply.Content, ChatRole.Assistant);
-                    //}
+                        var assistantReply = _chatGpt.GetStreamingChatMessageContentsAsync(dialog.ChatHistory,
+                            _openAiPromptExecutionSettings, _kernel);
+                        var fullMessage = string.Empty;
+                        dialog.AddMessage(content: fullMessage, role: ChatRole.Assistant);
+                        await foreach (var message in assistantReply)
+                        {
+                            if (message.Content == null) continue;
+                            if (message.Content is { Length: > 0 }) fullMessage += message.Content;
+                            dialog.Messages[^1].Content = fullMessage;
+                            RefreshMessage?.Invoke();
+                        }
 
-                    #endregion
+                        dialog.AddChatHistory(content: fullMessage, role: ChatRole.Assistant);
 
+                        #endregion
 
-                    #region 流式调用模型
+                        break;
+                    case ChatMethod.Async:
 
-                    var assistantReply = _chatGpt.GetStreamingChatMessageContentsAsync(dialog.ChatHistory,
-                        _openAiPromptExecutionSettings, _kernel);
-                    var fullMessage = string.Empty;
-                    dialog.AddMessage(content: fullMessage, role: ChatRole.Assistant);
-                    await foreach (var message in assistantReply)
-                    {
-                        if (message.Content == null) continue;
-                        if (message.Content is { Length: > 0 }) fullMessage += message.Content;
-                        dialog.Messages[^1].Content = fullMessage;
-                        BeginNewReply?.Invoke();
-                    }
+                        #region 异步调用模型
 
-                    dialog.AddChatHistory(content: fullMessage, role: ChatRole.Assistant);
+                        var chatMessageContentAsync = await _chatGpt.GetChatMessageContentAsync(dialog.ChatHistory,
+                            _openAiPromptExecutionSettings, _kernel);
 
-                    #endregion
+                        if (chatMessageContentAsync.Content != null)
+                        {
+                            dialog.AddMessage(content: chatMessageContentAsync.Content, role: ChatRole.Assistant);
+                            RefreshMessage?.Invoke();
+                            dialog.AddChatHistory(chatMessageContentAsync.Content, ChatRole.Assistant);
+                        }
+
+                        #endregion
+
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
             else
@@ -143,7 +175,7 @@ public class ChatService
                 foreach (var dialog in DialogGroup.Dialogs.Where(dialog => dialog.Id == currentId))
                 {
                     dialog.AddMessage(content: result, role: ChatRole.Assistant);
-                    BeginNewReply?.Invoke();
+                    RefreshMessage?.Invoke();
                 }
             }
         }
@@ -155,7 +187,7 @@ public class ChatService
             foreach (var dialog in DialogGroup.Dialogs.Where(dialog => dialog.Id == currentId))
             {
                 dialog.AddMessage(content: e.Message, role: ChatRole.Assistant);
-                BeginNewReply?.Invoke();
+                RefreshMessage?.Invoke();
             }
         }
     }
@@ -163,52 +195,69 @@ public class ChatService
     /// <summary>
     /// 清空聊天记录
     /// </summary>
-    public void ClearChatHistory(int currentId)
+    public async Task ClearChatHistory(int currentId)
     {
-        foreach (var dialog in DialogGroup.Dialogs.Where(dialog => dialog.Id == currentId))
-        {
-            dialog.Clear();
-            BeginNewReply?.Invoke();
-        }
+        await DialogGroup.Dialogs.First(d => d.Id == currentId).Clear();
+        RefreshMessage?.Invoke();
+    }
+
+    /// <summary>
+    /// 清空所有对话
+    /// </summary>
+    public async Task ClearAllDialog()
+    {
+        await DialogGroup.Clear();
+        RefreshMessage?.Invoke();
     }
 
     /// <summary>
     /// 添加对话
     /// </summary>
-    public void AddDialog()
+    public async Task AddDialog()
     {
-        DialogGroup.AddDialog(SystemMessage);
+        await DialogGroup.AddDialog(SystemMessage);
     }
 
-    public async Task<string?> Summary(string? message)
+    /// <summary>
+    /// 总结内容
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public async Task<string?> Summary(string? input)
     {
-        //try
-        //{
-        //    FunctionResult topics = await _kernel.InvokeAsync(
-        //        _conversationSummaryPlugin["GetConversationTopics"], new() { ["input"] = message });
-        //    string? temp = topics.GetValue<string>();
-        //    //转换为c#类
-        //    if (temp != null)
-        //    {
-        //        var resultJson = JsonConvert.DeserializeObject<Topics>(temp);
-        //        var result = resultJson?.topics.First();
-        //        return result ?? "没有找到相关信息";
-        //    }
-        //}
-        //catch (Exception e)
-        //{
-        //    Console.WriteLine(e);
-        //    throw;
-        //}
-
-        //return "对话";
-
-        var result = message?.Substring(0, Math.Min(message.Length, 5));
-        return result;
+        try
+        {
+            var pluginDirectoryPath =
+                Path.Combine(AppContext.BaseDirectory, "AiFun", "plugins", "OfficePlugin", "SummarizePlugin");
+            var summaryFunction = _kernel.CreatePluginFromPromptDirectory(pluginDirectoryPath);
+            var arguments = new KernelArguments() { ["input"] = input };
+            var summaryResult = await _kernel.InvokeAsync(summaryFunction["Summarize"], arguments);
+            return summaryResult.GetValue<string>();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
-}
 
-internal class Topics
-{
-    public List<string> topics { get; set; }
+    //初始化对话组
+    public async Task InitDialogs()
+    {
+        await DialogGroup.InitDialogs();
+    }
+
+    //获取当前对话
+    public Dialog? GetCurrentDialog(int currentId)
+    {
+        var dialog = DialogGroup.Dialogs.FirstOrDefault(d => d.Id == currentId);
+        return dialog;
+    }
+
+    //获取所有对话
+    public List<Dialog>? GetDialogs()
+    {
+        var dialogs = DialogGroup.Dialogs;
+        return dialogs;
+    }
 }

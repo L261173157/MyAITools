@@ -6,17 +6,19 @@ public enum BaseUrlType
     OpenaiEndpoint2
 }
 
-public class OpenAiHttpClientHandler: HttpClientHandler
+public class OpenAiHttpClientHandler : HttpClientHandler
 {
     private readonly string _host;
+
     //拦截请求地址
     private readonly string _scheme;
+
     public OpenAiHttpClientHandler(IGetBaseUrl baseUrl, BaseUrlType baseUrlType)
     {
         switch (baseUrlType)
         {
             case BaseUrlType.OpenaiEndpoint:
-                _host= baseUrl.GetHost();
+                _host = baseUrl.GetHost();
                 _scheme = baseUrl.GetScheme();
                 break;
             case BaseUrlType.OpenaiEndpoint2:
@@ -27,7 +29,7 @@ public class OpenAiHttpClientHandler: HttpClientHandler
                 throw new Exception("未知的请求地址");
         }
     }
-    
+
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)

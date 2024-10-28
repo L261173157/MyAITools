@@ -24,26 +24,35 @@ public class RagService
 
     public RagService(IKernelCreat kernel, ILogger<RagService> logger)
     {
-        //添加日志
-        _logger = logger;
-        //建立memory serverless服务
-        var memoryServerless = kernel.MemoryServerlessBuild();
-        //建立链接Ollama的服务
-        var config = new OllamaConfig
+        try
         {
-            Endpoint = "http://localhost:11434",
-            TextModel = new OllamaModelConfig("phi3:medium-128k", 131072),
-            EmbeddingModel = new OllamaModelConfig("nomic-embed-text", 2048)
-        };
-        var localMemory = new KernelMemoryBuilder()
-            .WithOllamaTextGeneration(config, new GPT4oTokenizer())
-            .WithOllamaTextEmbeddingGeneration(config, new GPT4oTokenizer()).WithSimpleVectorDb(new SimpleVectorDbConfig
-                { Directory = MainDir, StorageType = FileSystemTypes.Disk })
-            .WithSimpleFileStorage(new SimpleFileStorageConfig
-                { Directory = MainDir, StorageType = FileSystemTypes.Disk }).Build();
+            //添加日志
+            _logger = logger;
+            //建立memory serverless服务
+            var memoryServerless = kernel.MemoryServerlessBuild();
+            //建立链接Ollama的服务
+            var config = new OllamaConfig
+            {
+                Endpoint = "http://localhost:11434",
+                TextModel = new OllamaModelConfig("phi3:medium-128k", 131072),
+                EmbeddingModel = new OllamaModelConfig("nomic-embed-text", 2048)
+            };
+            var localMemory = new KernelMemoryBuilder()
+                .WithOllamaTextGeneration(config, new GPT4oTokenizer())
+                .WithOllamaTextEmbeddingGeneration(config, new GPT4oTokenizer()).WithSimpleVectorDb(
+                    new SimpleVectorDbConfig
+                        { Directory = MainDir, StorageType = FileSystemTypes.Disk })
+                .WithSimpleFileStorage(new SimpleFileStorageConfig
+                    { Directory = MainDir, StorageType = FileSystemTypes.Disk }).Build();
 
-        _kernelMemory = memoryServerless as IKernelMemory;
-        //_kernelMemory = _localMemory;
+            _kernelMemory = memoryServerless as IKernelMemory;
+            //_kernelMemory = _localMemory;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
 
@@ -60,7 +69,7 @@ public class RagService
             if (ask != null)
             {
                 var answer = await _kernelMemory.AskAsync(ask);
-                result ="文档："+answer.RelevantSources+"反馈：" +answer.Result;
+                result = "文档：" + answer.RelevantSources + "反馈：" + answer.Result;
                 _logger.LogInformation("模型回复成功");
             }
             else
@@ -75,7 +84,7 @@ public class RagService
             Console.WriteLine($"An error occurred: {e.Message}");
             Console.WriteLine(e.StackTrace);
             _logger.LogError(e.Message);
-            return "报错信息:"+ e.Message;
+            return "报错信息:" + e.Message;
         }
     }
 
@@ -87,7 +96,7 @@ public class RagService
     {
         try
         {
-            string docId="";
+            string docId = "";
             var filePath = await FilePicker.Default.PickAsync();
             using var md5 = MD5.Create();
             if (filePath?.FileName is not null)
@@ -108,12 +117,12 @@ public class RagService
                 docId = "未找到文件";
             }
 
-            return "文件ID:"+ docId;
+            return "文件ID:" + docId;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            return "错误信息:"+ e.Message;
+            return "错误信息:" + e.Message;
         }
     }
 
@@ -137,6 +146,7 @@ public class RagService
                 if (await _kernelMemory.IsDocumentReadyAsync(documentId))
                     await _kernelMemory.DeleteDocumentAsync(documentId);
             }
+
             return "删除成功";
         }
         catch (Exception e)
@@ -144,7 +154,6 @@ public class RagService
             var message = e.Message;
             return "错误信息:" + message;
         }
-        
     }
 
     static string FilterAllowedCharacters(string input)
@@ -168,6 +177,7 @@ public class RagService
                 result += item.ToString();
             }
         }
+
         // 使用正则表达式替换所有不允许的字符
         return Regex.Replace(result, @"[^a-zA-Z0-9._-]", string.Empty);
     }

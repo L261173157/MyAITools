@@ -3,6 +3,7 @@ using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MyAiTools.AiFun.Code;
+using MyAiTools.AiFun.Data;
 using MyAiTools.AiFun.plugins.MyPlugin;
 using MyAiTools.AiFun.Services;
 
@@ -20,18 +21,19 @@ public static class MauiProgram
         {
             fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
         });
-        
+
         builder.UseMauiCommunityToolkit();
         builder.Services.AddMauiBlazorWebView();
 
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
 
-        builder.Services.AddTransient<IKernelCreat, KernelCreate>();
-        builder.Services.AddTransient<IGetBaseUrl, GetBaseUrl>();
+        builder.Services.AddSingleton<IKernelCreat, KernelCreate>();
+        builder.Services.AddSingleton<IGetBaseUrl, GetBaseUrl>();
         builder.Services.AddSingleton<ChatService>();
         builder.Services.AddSingleton<PluginService>();
         builder.Services.AddSingleton<RagService>();
+        builder.Services.AddSingleton<DataBase>();
         builder.Services.AddTransient<TestPlugin>();
         builder.Services.AddTransient<GenerateImagePlugin>();
         builder.Services.AddTransient<ToolsPlugin>();

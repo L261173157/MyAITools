@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SQLite;
 
 namespace MyAiTools.AiFun.Model
 {
     /// <summary>
-    /// dialog的sqlite数据库模型
+    /// sqlite数据库模型基类
     /// </summary>
-    public class DialogModel : BaseModel
+    public class BaseModel
     {
-        public string? Title { get; set; }
+        public BaseModel()
+        {
+        }
+
+        [PrimaryKey] public int Id { get; set; }
     }
 }

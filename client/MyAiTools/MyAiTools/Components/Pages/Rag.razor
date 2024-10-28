@@ -5,7 +5,7 @@
 @inject RagService RagService
 
 <div class="chat-container">
-    <div id="scrollableDiv" class="chat-container">
+    <div id="scrollableDiv" class="messages">
         @foreach (var message in _messages)
         {
             <div class="message @(message.IsUser ? "user-message" : "assistant-message")">
@@ -28,10 +28,6 @@
 @code {
     private readonly List<MessageMode> _messages = [];
     private string? _userInput;
-
-    protected override void OnInitialized()
-    {
-    }
 
     /// <summary>
     ///     向后台发送消息
@@ -115,6 +111,4 @@
         public string? Content { get; init; }
         public bool IsUser { get; init; }
     }
-
-
 }

@@ -10,7 +10,7 @@
 <div class="chat-container">
 
     <div id="scrollableDiv" class="messages">
-        @foreach (var message in _currentDialog.Messages)
+        @foreach (var message in _currentDialog.CurrentMessages)
         {
             <div class="message @GetMessageRole(message)">
                 @if (message.Content != null)
@@ -22,7 +22,7 @@
     </div>
 
     <div class="dialog-list">
-        @foreach (var dialog in ChatService.DialogGroup.Dialogs)
+        @foreach (var dialog in _currentDialog.Dialogs)
         {
             <button class="btn @GetButtonColor(dialog)" @onclick="() => LoadDialog(dialog)">@dialog.Title</button>
         }
@@ -33,16 +33,17 @@
 <div class="input-group">
     <textarea @bind="_userInput" @onkeyup="HandleKeyUp" class="form-control" placeholder="输入你的消息..."></textarea>
     <button class="btn btn-primary" @onclick="SendMessage">发送</button>
-    <button class="btn btn-primary" @onclick="ClearMessage">清空</button>
+    <button class="btn btn-primary" @onclick="ClearMessage">清空当前</button>
+    <button class="btn btn-primary" @onclick="ChangeChatMethod">@GetChatMethodString()</button>
     <button class="btn btn-primary" @onclick="AddDialog">新对话</button> <!-- Add button to start a new dialog topic -->
+    <button class="btn btn-primary" @onclick="ClearAllMessage">清空所有</button>
 </div>
 
 
 @code {
-    private DialogModel _currentDialog=new() {Id = 0,Title = ""}; // Add a property to store the current dialog
+    private readonly DialogForPage _currentDialog = new(); // Add a property to store the current dialog
     private int _currentDialogId = 1; // Add a property to store the current dialog ID
 
-    private string? _newReply = string.Empty;
     private string? _userInput;
 
     /// <summary>
@@ -50,13 +51,14 @@
     /// </summary>
     protected override void OnInitialized()
     {
-        ChatService.BeginNewReply += BeginNewReply;
+        base.OnInitialized();
+        ChatService.RefreshMessage += RefreshMessage;
     }
 
     /// <summary>
-    ///     开始一个新的回复
+    ///     接收消息
     /// </summary>
-    private async void BeginNewReply()
+    private async void RefreshMessage()
     {
         await Task.Run(SynMessage);
         //手工渲染
@@ -66,13 +68,35 @@
     }
 
     /// <summary>
-    /// 与后台同步消息
+    /// 同步后台消息
     /// </summary>
     private void SynMessage()
     {
-        foreach (var dialog in ChatService.DialogGroup.Dialogs.Where(dialog => dialog.Id == _currentDialogId))
+        try
         {
-            _currentDialog = dialog;
+            // 获取当前对话消息
+            var currentDialog = ChatService.GetCurrentDialog(_currentDialogId);
+            if (currentDialog != null)
+            {
+                _currentDialog.Id = currentDialog.Id;
+                _currentDialog.CurrentMessages = currentDialog.Messages;
+                _currentDialog.Title = currentDialog.Title;
+            }
+            else
+            {
+                _currentDialog.Id = 0;
+                _currentDialog.CurrentMessages = new List<Message>();
+                _currentDialog.Title = string.Empty;
+            }
+
+            // 获取对话列表
+            var dialogs = ChatService.GetDialogs();
+            _currentDialog.Dialogs = dialogs;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
 
@@ -95,9 +119,71 @@
     /// <summary>
     ///     清空消息
     /// </summary>
-    private void ClearMessage()
+    private async Task ClearMessage()
     {
-        ChatService.ClearChatHistory(_currentDialogId);
+        await ChatService.ClearChatHistory(_currentDialogId);
+    }
+
+    /// <summary>
+    ///    切换聊天模式
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    private void ChangeChatMethod()
+    {
+        ChatService.ChatMethod = ChatService.ChatMethod switch
+        {
+            ChatMethod.Streaming => ChatMethod.Async,
+            ChatMethod.Async => ChatMethod.Streaming,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
+    /// <summary>
+    ///     开启新对话主题
+    /// </summary>
+    private async Task AddDialog()
+    {
+        try
+        {
+            var dialog = ChatService.DialogGroup.Dialogs.FirstOrDefault(dialog => dialog.Id == _currentDialogId);
+            if (dialog is not null)
+            {
+                if (string.IsNullOrWhiteSpace(dialog?.Title)) return;
+                await ChatService.AddDialog();
+                await LoadDialog(ChatService.DialogGroup.Dialogs.Last());
+            }
+            else
+            {
+                await ChatService.AddDialog();
+                await LoadDialog(ChatService.DialogGroup.Dialogs.Last());
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    /// <summary>
+    ///     加载对话
+    /// </summary>
+    /// <param name="dialog"></param>
+    private async Task LoadDialog(Dialog dialog)
+    {
+        _currentDialogId = dialog.Id;
+        SynMessage();
+        //手工渲染
+        StateHasChanged();
+    }
+
+    /// <summary>
+    ///    清空所有消息
+    /// </summary>
+    private async Task ClearAllMessage()
+    {
+        await ChatService.ClearAllDialog();
+        _currentDialogId = 1;
     }
 
 
@@ -135,8 +221,9 @@
         var mdMessage = Markdown.ToHtml(message);
         return mdMessage;
     }
+
     //获取消息角色
-    private string GetMessageRole(MessageModel message)
+    private string GetMessageRole(Message message)
     {
         return message.Role switch
         {
@@ -146,33 +233,25 @@
             _ => "system-message"
         };
     }
+
     //获取按钮颜色
-    private string GetButtonColor(DialogModel dialog)
+    private string GetButtonColor(Dialog dialog)
     {
-        return dialog.Id == _currentDialogId ?   "btn-secondary":"btn-primary";
+        return dialog.Id == _currentDialogId ? "btn-secondary" : "btn-primary";
+    }
+
+    //获取聊天模式字符串
+    private string GetChatMethodString()
+    {
+        return ChatService.ChatMethod switch
+        {
+            ChatMethod.Streaming => "流式",
+            ChatMethod.Async => "异步",
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     #endregion
 
-    /// <summary>
-    ///     开启新对话主题
-    /// </summary>
-    private void AddDialog()
-    {
-        ChatService.AddDialog();
-        LoadDialog(ChatService.DialogGroup.Dialogs.Last());
-    }
-
-    /// <summary>
-    ///     加载对话
-    /// </summary>
-    /// <param name="dialog"></param>
-    private void LoadDialog(DialogModel dialog)
-    {
-        _currentDialogId = dialog.Id;
-        SynMessage();
-        //手工渲染
-        StateHasChanged();
-    }
 
 }
