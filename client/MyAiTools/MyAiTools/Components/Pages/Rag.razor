@@ -62,7 +62,6 @@
     /// <returns></returns>
     private async Task HandleKeyUp(KeyboardEventArgs e)
     {
-        //todo 无法正常触发，未找到原因
         if (e is { CtrlKey: true, Key: "Enter" })
         {
             await SendMessage();
@@ -106,7 +105,7 @@
     }
 
     //对话框显示模型
-    private class MessageMode
+    private record MessageMode
     {
         public string? Content { get; init; }
         public bool IsUser { get; init; }

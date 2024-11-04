@@ -14,12 +14,12 @@ namespace MyAiTools.AiFun.Model
         public int Id { get; set; }
         public string? Title { get; set; }
 
-        private string _systemMessage;
+        private readonly string? _systemMessage;
         public List<Message> Messages { get; set; }
         public ChatHistory? ChatHistory { get; set; }
 
-        private DataBase _dataBase;
-
+        private readonly DataBase _dataBase;
+        
         public Dialog(DataBase dataBase, int id, string title, List<Message> messages, ChatHistory chatHistory)
         {
             Id = id;
@@ -27,9 +27,10 @@ namespace MyAiTools.AiFun.Model
             Messages = messages;
             ChatHistory = chatHistory;
             _dataBase = dataBase;
+            _systemMessage = chatHistory[0].Content;
         }
 
-        public Dialog(int id, string title, string systemMessage, DataBase dataBase)
+        public Dialog(int id, string title, string? systemMessage, DataBase dataBase)
         {
             Id = id;
             Title = title;

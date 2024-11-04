@@ -19,13 +19,13 @@ namespace MyAiTools.AiFun.Model
         {
             _dataBase = dataBase;
 
-            _ = InitDialogs();
+            // _ = InitDialogs();
         }
 
         /// <summary>
         /// 新增对话
         /// </summary>
-        public async Task AddDialog(string systemMessage)
+        public async Task AddDialog(string? systemMessage)
         {
             var id = Dialogs.Count + 1;
             var title = string.Empty;

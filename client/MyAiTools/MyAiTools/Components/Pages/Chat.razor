@@ -6,7 +6,10 @@
 @inject ChatService ChatService
 @inject IJSRuntime JsRuntime
 
-
+@if (_isLoading)
+{
+<p>Loading data, please wait...</p>
+}
 <div class="chat-container">
 
     <div id="scrollableDiv" class="messages">
@@ -43,6 +46,7 @@
 @code {
     private readonly DialogForPage _currentDialog = new(); // Add a property to store the current dialog
     private int _currentDialogId = 1; // Add a property to store the current dialog ID
+    private bool _isLoading = true;
 
     private string? _userInput;
 
@@ -51,8 +55,20 @@
     /// </summary>
     protected override void OnInitialized()
     {
-        base.OnInitialized();
         ChatService.RefreshMessage += RefreshMessage;
+    }
+    
+    //异步初始化
+    protected override async Task OnInitializedAsync()
+    {
+        await InitDialogs();
+        _isLoading = false;
+    }
+    
+    //初始化对话组
+    private async Task InitDialogs()
+    {
+        await ChatService.InitDialogs();
     }
 
     /// <summary>

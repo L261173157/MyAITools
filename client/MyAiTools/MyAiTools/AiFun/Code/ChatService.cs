@@ -36,7 +36,7 @@ public class ChatService
 
     private DataBase _dataBase;
 
-    private const string SystemMessage =
+    private const string? SystemMessage =
         """
         You are a friendly assistant who likes to follow the rules.
         You will complete required steps and request approval before taking any consequential actions. 
@@ -113,7 +113,7 @@ public class ChatService
         {
             if (ask != null)
             {
-                var dialog = DialogGroup.Dialogs.First(d => d.Id == currentId);
+                var dialog = (DialogGroup.Dialogs ?? throw new InvalidOperationException()).First(d => d.Id == currentId);
 
                 dialog.AddMessage(content: ask, role: ChatRole.User);
                 dialog.AddChatHistory(content: ask, role: ChatRole.User);
@@ -197,7 +197,7 @@ public class ChatService
     /// </summary>
     public async Task ClearChatHistory(int currentId)
     {
-        await DialogGroup.Dialogs.First(d => d.Id == currentId).Clear();
+        await (DialogGroup.Dialogs ?? throw new InvalidOperationException()).First(d => d.Id == currentId).Clear();
         RefreshMessage?.Invoke();
     }
 
@@ -216,6 +216,7 @@ public class ChatService
     public async Task AddDialog()
     {
         await DialogGroup.AddDialog(SystemMessage);
+        RefreshMessage?.Invoke();
     }
 
     /// <summary>
@@ -223,7 +224,7 @@ public class ChatService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<string?> Summary(string? input)
+    private async Task<string?> Summary(string? input)
     {
         try
         {
@@ -245,12 +246,13 @@ public class ChatService
     public async Task InitDialogs()
     {
         await DialogGroup.InitDialogs();
+        RefreshMessage?.Invoke();
     }
 
     //获取当前对话
     public Dialog? GetCurrentDialog(int currentId)
     {
-        var dialog = DialogGroup.Dialogs.FirstOrDefault(d => d.Id == currentId);
+        var dialog = (DialogGroup.Dialogs ?? throw new InvalidOperationException()).FirstOrDefault(d => d.Id == currentId);
         return dialog;
     }
 
