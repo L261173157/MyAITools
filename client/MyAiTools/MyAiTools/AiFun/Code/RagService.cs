@@ -1,15 +1,15 @@
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.International.Converters.PinYinConverter;
 using Microsoft.KernelMemory;
-using Microsoft.KernelMemory.AI.Ollama;
-using Microsoft.KernelMemory.AI.OpenAI;
 using Microsoft.KernelMemory.DocumentStorage.DevTools;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using Microsoft.KernelMemory.MemoryStorage.DevTools;
 using MyAiTools.AiFun.Services;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.KernelMemory.AI;
+using Microsoft.KernelMemory.AI.Ollama;
 
 namespace MyAiTools.AiFun.Code;
 
@@ -31,6 +31,7 @@ public class RagService
             //建立memory serverless服务
             var memoryServerless = kernel.MemoryServerlessBuild();
             //建立链接Ollama的服务
+            //todo 目前km版本更新，暂时无法使用
             var config = new OllamaConfig
             {
                 Endpoint = "http://localhost:11434",
@@ -41,9 +42,9 @@ public class RagService
                 .WithOllamaTextGeneration(config, new GPT4oTokenizer())
                 .WithOllamaTextEmbeddingGeneration(config, new GPT4oTokenizer()).WithSimpleVectorDb(
                     new SimpleVectorDbConfig
-                        { Directory = MainDir, StorageType = FileSystemTypes.Disk })
+                    { Directory = MainDir, StorageType = FileSystemTypes.Disk })
                 .WithSimpleFileStorage(new SimpleFileStorageConfig
-                    { Directory = MainDir, StorageType = FileSystemTypes.Disk }).Build();
+                { Directory = MainDir, StorageType = FileSystemTypes.Disk }).Build();
 
             _kernelMemory = memoryServerless as IKernelMemory;
             //_kernelMemory = _localMemory;

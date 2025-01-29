@@ -1,11 +1,16 @@
 ﻿using System.Configuration;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using NPOI.XWPF.UserModel;
 
 namespace MyAiTools.AiFun.plugins.MyPlugin;
 
-public static class NopiHandler
+public static class NpoiHandler
 {
+    private static IConfiguration Configuration { get; } = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .Build();
+
     /// <summary>
     ///     读取Word内容
     /// </summary>
@@ -13,16 +18,16 @@ public static class NopiHandler
     /// <returns></returns>
     public static string ReadWordText(string fileName)
     {
-        var WordTableCellSeparator = ConfigurationManager.AppSettings["WordTableCellSeparator"];
-        var WordTableRowSeparator = ConfigurationManager.AppSettings["WordTableRowSeparator"];
-        var WordTableSeparator = ConfigurationManager.AppSettings["WordTableSeparator"];
+        var WordTableCellSeparator = Configuration["WordTableCellSeparator"];
+        var WordTableRowSeparator = Configuration["WordTableRowSeparator"];
+        var WordTableSeparator = Configuration["WordTableSeparator"];
         //
-        var CaptureWordHeader = ConfigurationManager.AppSettings["CaptureWordHeader"];
-        var CaptureWordFooter = ConfigurationManager.AppSettings["CaptureWordFooter"];
-        var CaptureWordTable = ConfigurationManager.AppSettings["CaptureWordTable"];
-        var CaptureWordImage = ConfigurationManager.AppSettings["CaptureWordImage"];
+        var CaptureWordHeader = Configuration["CaptureWordHeader"];
+        var CaptureWordFooter = Configuration["CaptureWordFooter"];
+        var CaptureWordTable = Configuration["CaptureWordTable"];
+        var CaptureWordImage = Configuration["CaptureWordImage"];
         //
-        var CaptureWordImageFileName = ConfigurationManager.AppSettings["CaptureWordImageFileName"];
+        var CaptureWordImageFileName = Configuration["CaptureWordImageFileName"];
         //
         var fileText = string.Empty;
         var sbFileText = new StringBuilder();

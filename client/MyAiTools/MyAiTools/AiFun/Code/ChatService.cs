@@ -1,7 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
-using Amazon.S3.Model;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
 using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
@@ -12,8 +8,6 @@ using MyAiTools.AiFun.Data;
 using MyAiTools.AiFun.Model;
 using MyAiTools.AiFun.plugins.MyPlugin;
 using MyAiTools.AiFun.Services;
-using Newtonsoft.Json;
-using UglyToad.PdfPig.Logging;
 
 namespace MyAiTools.AiFun.Code;
 

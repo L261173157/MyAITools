@@ -51,7 +51,7 @@ public class ToolsPlugin
                 {
                     var result = await Task.Run(() =>
                     {
-                        var reader = NopiHandler.ReadWordText(filePath);
+                        var reader = NpoiHandler.ReadWordText(filePath);
                         return reader;
                     });
                     _logger.LogInformation("ReadDocxFile started");
