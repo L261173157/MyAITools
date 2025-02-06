@@ -32,13 +32,8 @@ public class ChatService
 
     private const string? SystemMessage =
         """
-        You are a friendly assistant who likes to follow the rules.
-        You will complete required steps and request approval before taking any consequential actions. 
-        If the user doesn't provide enough information for you to complete a task or if you don't have enough information to complete a task, 
-        you can try to get the information from search plugin, after that try to get the information from kernel memory plugin, 
-        if you call some plugins,you can tell me which plugin you have called.
-        for example: \"I have called the plugin named 'plugin name'\". 
-        you will keep asking questions until you have enough information to complete the task.
+        You are a helpful and intelligent AI assistant. Respond concisely and accurately to user requests. Maintain a professional and neutral tone. Prioritize clarity and relevance in your answers.
+
         """;
 
     /// <summary>
@@ -107,7 +102,8 @@ public class ChatService
         {
             if (ask != null)
             {
-                var dialog = (DialogGroup.Dialogs ?? throw new InvalidOperationException()).First(d => d.Id == currentId);
+                var dialog =
+                    (DialogGroup.Dialogs ?? throw new InvalidOperationException()).First(d => d.Id == currentId);
 
                 dialog.AddMessage(content: ask, role: ChatRole.User);
                 dialog.AddChatHistory(content: ask, role: ChatRole.User);
@@ -115,6 +111,7 @@ public class ChatService
                 if (string.IsNullOrWhiteSpace(dialog.Title))
                 {
                     var title = await Summary(dialog.Messages.First().Content);
+                    //var title = "对话" + dialog.Id.ToString();
                     await dialog.UpdateTitle(title);
                 }
 
@@ -246,7 +243,8 @@ public class ChatService
     //获取当前对话
     public Dialog? GetCurrentDialog(int currentId)
     {
-        var dialog = (DialogGroup.Dialogs ?? throw new InvalidOperationException()).FirstOrDefault(d => d.Id == currentId);
+        var dialog =
+            (DialogGroup.Dialogs ?? throw new InvalidOperationException()).FirstOrDefault(d => d.Id == currentId);
         return dialog;
     }
 

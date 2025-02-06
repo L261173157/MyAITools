@@ -15,6 +15,7 @@ namespace MyAiTools.AiFun.Services;
 public class KernelCreate : IKernelCreat
 
 {
+    //todo 各类模型可通过前台选择,gpt-4o,o3-mini,deepseek-chat
     private const string OpenAiChatModelId = "gpt-4o";
     private const string OpenAiEmbeddingModelId = "text-embedding-ada-002";
     private const string DefaultDir = "D:/Memory";

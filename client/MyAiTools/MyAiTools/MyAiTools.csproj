@@ -78,7 +78,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.30" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1" />
         <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.30" />
-        <PackageReference Include="Microsoft.SemanticKernel" Version="1.35.0" />
+        <PackageReference Include="Microsoft.SemanticKernel" Version="1.36.0" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.18.0-alpha" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.18.0-alpha" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.18.0-alpha" />
