@@ -10,7 +10,7 @@
 ### 2. 项目结构
 
 1. 本项目分为两部分：本地客户端和服务器端；
-2. 本地代码采用.net 8.0框架编写，MAUI-blazor。目前通过调用微软SK，通过调用OPENAI的api接口服务实现AI功能；
+2. 本地代码采用.net 8.0框架编写，MAUI-blazor。目前通过调用微软SK，通过调用OPENAI的api接口服务实现AI功能；——后续可能会更改为avalonia，maui-blazor感觉有点不方便；
 3. 本地客户端目前只在Windows系统测试过；
 4. 服务器端采用Ollama，目前只是一个简单的服务端，用于RAG问答；目前没有代码，只是本地简单跑了一下ollama；
 5. phi3:medium-128k用于chat模型，nomic-embed-text用于embed模型；
