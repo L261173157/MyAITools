@@ -46,6 +46,7 @@
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
         <PackageCertificateThumbprint>1764AF6559DCB19C5AAE74E58896D7F0F776A8B2</PackageCertificateThumbprint>
         <AppxPackageDir>D:\linxin\OneDrive\Learn\MyAITools\package\</AppxPackageDir>
+        <WindowsPackageType>None</WindowsPackageType>
     </PropertyGroup>
 
     <ItemGroup>
